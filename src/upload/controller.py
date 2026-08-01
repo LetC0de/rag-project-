@@ -1,10 +1,11 @@
 from fastapi import UploadFile
+from langchain_community.document_loaders import PyPDFLoader
 import tempfile
 
 
 async def upload_doc(file: UploadFile):
 
-    # Create a temporary PDF file
+    # Create temporary PDF file
     with tempfile.NamedTemporaryFile(
         delete=False,
         suffix=".pdf"
@@ -13,14 +14,22 @@ async def upload_doc(file: UploadFile):
         # Read uploaded PDF
         contents = await file.read()
 
-        # Write into temporary file
+        # Write uploaded bytes to temp file
         temp_file.write(contents)
 
         # Get temporary file path
         temp_file_path = temp_file.name
 
+    # ==============================
+    # Extract text (Your original code)
+    # ==============================
+
+    loader = PyPDFLoader(temp_file_path)
+    docs = loader.load()
+
     return {
-        "message": "Temporary file created successfully",
+        "message": "Text extracted successfully",
         "original_filename": file.filename,
+        "pages": len(docs),
         "temp_file_path": temp_file_path
     }
