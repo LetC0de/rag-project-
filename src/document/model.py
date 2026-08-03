@@ -8,6 +8,6 @@ class DocumentModel(base):
 
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String, nullable=False)
-    user_id = Column(Integer, nullable=False)
+    user_id = Column(Integer, nullable=True)
     status = Column(String, default="pending")
     created_at = Column(DateTime, default=datetime.now())
