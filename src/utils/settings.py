@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     MISTRAL_API_KEY: str
     QDRANT_URL: str
     QDRANT_API_KEY: str
+    DB_CONNECTION: str
 
 
 settings = Settings()
