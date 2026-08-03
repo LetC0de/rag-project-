@@ -1,7 +1,7 @@
-from src.query.schema import QueryRequest
+from src.query.schema import QueryRequestSchema
 
 
-async def ask_question(request: QueryRequest):
+async def ask_question(request: QueryRequestSchema):
 
     return {
         "document_id": request.document_id,

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
 
-class QueryRequest(BaseModel):
+class QueryRequestSchema(BaseModel):
     document_id: int
     question: str
