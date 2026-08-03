@@ -1,7 +1,6 @@
 from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_mistralai import MistralAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from sqlalchemy.orm import Session
 import os
@@ -10,7 +9,7 @@ import tempfile
 from src.document.model import DocumentModel
 from src.qdrant.client import client
 from src.qdrant.collection import COLLECTION_NAME
-from src.utils.settings import settings
+from src.utils.helper import embeddings
 
 
 async def upload_doc(file: UploadFile, db: Session):
@@ -76,16 +75,9 @@ async def upload_doc(file: UploadFile, db: Session):
             chunk.metadata["filename"] = file.filename
 
         # ==========================
-        # Step 3 - Embedding
-        # ==========================
-
-        embeddings = MistralAIEmbeddings(
-            model=settings.MISTRAL_MODEL,
-        )
-
-        # ==========================
         # Step 4 - Upload to Qdrant
         # ==========================
+        # embeddings: singleton from src/utils/helper.py (created once at startup)
 
         vector_store = QdrantVectorStore(
             client=client,
