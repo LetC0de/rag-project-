@@ -5,7 +5,6 @@ from pydantic import BaseModel, ConfigDict
 
 class DocumentBase(BaseModel):
     filename: str
-    filepath: str
     user_id: int
     status: str = "pending"
 
