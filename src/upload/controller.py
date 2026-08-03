@@ -2,10 +2,14 @@ from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_mistralai import MistralAIEmbeddings
+from langchain_qdrant import QdrantVectorStore
 from sqlalchemy.orm import Session
+import os
 import tempfile
 
 from src.document.model import Document
+from src.qdrant.client import client
+from src.qdrant.collection import COLLECTION_NAME
 from src.utils.settings import settings
 
 
@@ -26,60 +30,103 @@ async def upload_doc(file: UploadFile, db: Session):
 
     document_id = document.id
 
-    # Create temporary PDF file
-    with tempfile.NamedTemporaryFile(
-        delete=False,
-        suffix=".pdf"
-    ) as temp_file:
+    temp_file_path = None
 
-        # Read uploaded PDF
-        contents = await file.read()
+    try:
 
-        # Write uploaded bytes
-        temp_file.write(contents)
+        # Create temporary PDF file
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".pdf"
+        ) as temp_file:
 
-        # Temporary file path
-        temp_file_path = temp_file.name
+            # Read uploaded PDF
+            contents = await file.read()
+
+            # Write uploaded bytes
+            temp_file.write(contents)
+
+            # Temporary file path
+            temp_file_path = temp_file.name
+
+        # ==========================
+        # Extract Text
+        # ==========================
+
+        loader = PyPDFLoader(temp_file_path)
+        docs = loader.load()
+
+        # ==========================
+        # Split Documents
+        # ==========================
+
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=200
+        )
+
+        chunks = splitter.split_documents(docs)
+
+        # ==========================
+        # Step 2 - Add Metadata in Every Chunk
+        # ==========================
+
+        for chunk in chunks:
+            chunk.metadata["document_id"] = document.id
+            chunk.metadata["filename"] = file.filename
+
+        # ==========================
+        # Step 3 - Embedding
+        # ==========================
+
+        embeddings = MistralAIEmbeddings(
+            model=settings.MISTRAL_MODEL,
+        )
+
+        # ==========================
+        # Step 4 - Upload to Qdrant
+        # ==========================
+
+        vector_store = QdrantVectorStore(
+            client=client,
+            collection_name=COLLECTION_NAME,
+            embedding=embeddings
+        )
+
+        vector_store.add_documents(chunks)
+
+        # ==========================
+        # Step 5 - Update Status (success)
+        # ==========================
+
+        document.status = "processed"
+        db.commit()
+
+    except Exception:
+
+        # ==========================
+        # Step 5 - Update Status (failure)
+        # ==========================
+
+        document.status = "failed"
+        db.commit()
+
+        raise
+
+    finally:
+
+        # ==========================
+        # Step 6 - Delete Temporary File
+        # ==========================
+
+        if temp_file_path and os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
 
     # ==========================
-    # Extract Text
+    # Step 7 - Response
     # ==========================
-
-    loader = PyPDFLoader(temp_file_path)
-    docs = loader.load()
-
-    # ==========================
-    # Split Documents
-    # ==========================
-
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
-    )
-
-    chunks = splitter.split_documents(docs)
-
-    # ==========================
-    # Step 2 - Add Metadata in Every Chunk
-    # ==========================
-
-    for chunk in chunks:
-        chunk.metadata["document_id"] = document.id
-        chunk.metadata["filename"] = file.filename
-
-    # ==========================
-    # Step 3 - Embedding
-    # ==========================
-
-    embeddings = MistralAIEmbeddings(
-        model=settings.MISTRAL_MODEL,
-    )
 
     return {
-        "message": "Document split successfully",
-        "document_id": document_id,
-        "original_filename": file.filename,
-        "pages": len(docs),
-        "chunks": len(chunks),
-        "temp_file_path": temp_file_path
+        "document_id": document.id,
+        "status": "processed"
     }
