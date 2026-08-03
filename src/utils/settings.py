@@ -4,6 +4,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env",extra="ignore")
 
     MISTRAL_API_KEY: str
+    MISTRAL_MODEL: str
     QDRANT_URL: str
     QDRANT_API_KEY: str
     DB_CONNECTION: str

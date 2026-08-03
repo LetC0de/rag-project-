@@ -1,10 +1,12 @@
 from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_mistralai import MistralAIEmbeddings
 from sqlalchemy.orm import Session
 import tempfile
 
 from src.document.model import Document
+from src.utils.settings import settings
 
 
 async def upload_doc(file: UploadFile, db: Session):
@@ -56,6 +58,22 @@ async def upload_doc(file: UploadFile, db: Session):
     )
 
     chunks = splitter.split_documents(docs)
+
+    # ==========================
+    # Step 2 - Add Metadata in Every Chunk
+    # ==========================
+
+    for chunk in chunks:
+        chunk.metadata["document_id"] = document.id
+        chunk.metadata["filename"] = file.filename
+
+    # ==========================
+    # Step 3 - Embedding
+    # ==========================
+
+    embeddings = MistralAIEmbeddings(
+        model=settings.MISTRAL_MODEL,
+    )
 
     return {
         "message": "Document split successfully",
