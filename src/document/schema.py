@@ -1,19 +1,18 @@
 from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict
 
 
-class DocumentBase(BaseModel):
+class BaseSchema(BaseModel):
     filename: str
     user_id: int
     status: str = "pending"
 
 
-class DocumentCreate(DocumentBase):
+class CreateSchema(BaseSchema):
     pass
 
 
-class DocumentOut(DocumentBase):
+class OutSchema(BaseSchema):
     model_config = ConfigDict(from_attributes=True)
 
     id: int

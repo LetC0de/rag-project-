@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 import os
 import tempfile
 
-from src.document.model import Document
+from src.document.model import DocumentModel
 from src.qdrant.client import client
 from src.qdrant.collection import COLLECTION_NAME
 from src.utils.settings import settings
@@ -19,7 +19,7 @@ async def upload_doc(file: UploadFile, db: Session):
     # Step 1 - Save Metadata First
     # ==========================
 
-    document = Document(
+    document = DocumentModel(
         filename=file.filename,
         status="processing"
     )

@@ -9,8 +9,5 @@ upload_router = APIRouter(prefix="/upload")
 
 
 @upload_router.post("/upload")
-async def upload(
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
-):
+async def upload(file: UploadFile = File(...),db: Session = Depends(get_db)):
     return await upload_doc(file, db)
