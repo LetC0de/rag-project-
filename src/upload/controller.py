@@ -1,10 +1,28 @@
 from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from sqlalchemy.orm import Session
 import tempfile
 
+from src.document.model import Document
 
-async def upload_doc(file: UploadFile):
+
+async def upload_doc(file: UploadFile, db: Session):
+
+    # ==========================
+    # Step 1 - Save Metadata First
+    # ==========================
+
+    document = Document(
+        filename=file.filename,
+        status="processing"
+    )
+
+    db.add(document)
+    db.commit()
+    db.refresh(document)
+
+    document_id = document.id
 
     # Create temporary PDF file
     with tempfile.NamedTemporaryFile(
@@ -41,6 +59,7 @@ async def upload_doc(file: UploadFile):
 
     return {
         "message": "Document split successfully",
+        "document_id": document_id,
         "original_filename": file.filename,
         "pages": len(docs),
         "chunks": len(chunks),
