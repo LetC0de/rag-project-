@@ -10,3 +10,4 @@ uvicorn
 qdrant-client
 langchain-qdrant
 psycopg2-binary
+alembic
