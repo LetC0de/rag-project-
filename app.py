@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from src.qdrant.collection import create_collection
+from src.query.router import chat_router
 from src.upload.router import upload_router
 from src.utils.db import base,engine
 
@@ -18,3 +19,4 @@ app = FastAPI(title="Enterprise Knowledge Asistant", lifespan=lifespan)
 
 
 app.include_router(upload_router)
+app.include_router(chat_router)
