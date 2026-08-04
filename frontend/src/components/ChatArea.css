@@ -662,16 +662,23 @@
 
   .welcome__suggestions {
     grid-template-columns: 1fr;
-    gap: 8px;
-    margin-top: 22px;
+    gap: 7px;
+    margin-top: 20px;
   }
 
   .suggestion {
-    padding: 12px 14px;
+    padding: 10px 12px;
+    gap: 9px;
+    border-radius: calc(var(--radius-md) - 2px);
+  }
+
+  .suggestion__icon {
+    font-size: 15px;
   }
 
   .suggestion__text {
-    font-size: 13px;
+    font-size: 12px;
+    line-height: 1.35;
   }
 
   /* Thread adjustments */
@@ -819,15 +826,15 @@
   }
 
   .suggestion {
-    padding: 11px 12px;
-    gap: 9px;
+    padding: 9px 10px;
+    gap: 8px;
   }
 
   .suggestion__icon {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .suggestion__text {
-    font-size: 12.5px;
+    font-size: 11.5px;
   }
 }
