@@ -6,6 +6,7 @@ from src.document.router import document_router
 from src.query.router import chat_router
 from src.upload.router import upload_router
 from src.utils.db import base,engine
+from src.utils.settings import settings
 
 
 
@@ -19,10 +20,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Enterprise Knowledge Asistant", lifespan=lifespan)
 
-# Allow the Vite dev server (and any local frontend) to call this API
+# Allow the frontend (Vercel) to call this API.
+# Origins come from settings.CORS_ORIGINS (env var CORS_ORIGINS in .env).
+# Defaults cover the Vite dev server; add the deployed origin for production.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_methods=["*"],
     allow_headers=["*"],
 )
