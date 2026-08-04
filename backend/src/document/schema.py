@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict
 
 class BaseSchema(BaseModel):
     filename: str
-    user_id: int
+    user_id: int | None = None
     status: str = "pending"
 
 
