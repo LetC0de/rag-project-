@@ -1,10 +1,11 @@
-from qdrant_client.models import FieldCondition, Filter, MatchValue
+from qdrant_client.http.models import Filter, FieldCondition, MatchValue
 
 from src.rag.vector_store import vector_store
 
 
 def detect_query_type(question):
     """Detect if query is asking for summary/overview or specific facts"""
+
     question_lower = question.lower().strip()
 
     summary_keywords = [
@@ -19,33 +20,33 @@ def detect_query_type(question):
     return any(keyword in question_lower for keyword in summary_keywords)
 
 
-def get_retriever(question, document_id=None):
-    """Get appropriate retriever based on query type, filtered to a document"""
-    qdrant_filter = None
-    if document_id is not None:
-        qdrant_filter = Filter(
-            must=[
-                FieldCondition(
-                    key="document_id",
-                    match=MatchValue(value=document_id)
-                )
-            ]
-        )
+def get_retriever(question: str, document_id: int):
 
-    is_summary_query = detect_query_type(question)
+    qdrant_filter = Filter(
+        must=[
+            FieldCondition(
+                key="metadata.document_id",
+                match=MatchValue(value=document_id)
+            )
+        ]
+    )
 
-    if is_summary_query:
+    if detect_query_type(question):
+
         return vector_store.as_retriever(
             search_type="similarity",
-            search_kwargs={"k": 6, "filter": qdrant_filter}
-        )
-    else:
-        return vector_store.as_retriever(
-            search_type="mmr",
             search_kwargs={
-                "k": 4,
-                "fetch_k": 10,
-                "lambda_mult": 0.5,
+                "k": 6,
                 "filter": qdrant_filter
             }
         )
+
+    return vector_store.as_retriever(
+        search_type="mmr",
+        search_kwargs={
+            "k": 4,
+            "fetch_k": 10,
+            "lambda_mult": 0.5,
+            "filter": qdrant_filter
+        }
+    )
