@@ -1,0 +1,60 @@
+.app {
+  position: relative;
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 11px 18px;
+  border-radius: 14px;
+  box-shadow: var(--shadow-lg);
+  animation: rise 0.3s ease both;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.toast--error {
+  background: #fff;
+  border: 1.5px solid #f4c2c2;
+  color: var(--danger);
+}
+
+.toast--warn {
+  background: #fff;
+  border: 1.5px solid var(--sun-soft);
+  color: #a86808;
+}
+
+@media (max-width: 860px) {
+  .sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 30;
+    width: var(--sidebar-w);
+  }
+
+  .sidebar--collapsed {
+    width: 0;
+    transform: translateX(-100%);
+  }
+
+  .chat__thread-inner,
+  .composer {
+    max-width: 100%;
+  }
+
+  .welcome__suggestions {
+    grid-template-columns: 1fr;
+  }
+}

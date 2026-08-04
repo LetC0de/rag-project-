@@ -1,0 +1,160 @@
+/* ============================================================
+   Knowledge — "Sunlit Garden Study"
+   A warm, light, vibrant chat workspace for documents.
+   Fonts: Fraunces (display serif) + Outfit (humanist sans)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Palette — warm cream base, vibrant sunlit accents */
+  --bg: #faf6ef;
+  --bg-deep: #f4eee1;
+  --surface: #fffdf9;
+  --surface-2: #ffffff;
+
+  --ink: #2b2620;
+  --ink-soft: #6f6658;
+  --ink-faint: #a69a88;
+
+  --line: #e9e0cf;
+  --line-soft: #f0e9da;
+
+  --brand: #ff6b3d;          /* tangerine coral */
+  --brand-deep: #f2541f;
+  --brand-glow: rgba(255, 107, 61, 0.22);
+
+  --sun: #ffb53c;            /* sunshine */
+  --sun-soft: #ffe1a8;
+  --leaf: #2fae6b;           /* kiwi */
+  --leaf-soft: #cdeeda;
+  --sky: #4aa3e8;            /* sky */
+  --sky-soft: #d3ebfc;
+  --berry: #e34f8f;          /* berry pink */
+  --berry-soft: #fcd4e4;
+  --grape: #9a6cf0;          /* soft violet */
+  --grape-soft: #e8dcfb;
+
+  --danger: #e5484d;
+  --success: var(--leaf);
+
+  --shadow-sm: 0 1px 2px rgba(80, 60, 30, 0.06);
+  --shadow-md: 0 6px 18px -6px rgba(80, 60, 30, 0.16);
+  --shadow-lg: 0 24px 60px -18px rgba(80, 60, 30, 0.28);
+  --shadow-pop: 0 10px 30px -8px rgba(80, 60, 30, 0.22);
+
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-sans: 'Outfit', 'Segoe UI', sans-serif;
+
+  --sidebar-w: 292px;
+  --transition: 200ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* ------- Ambient background: sun-warmed blobs + grain ------- */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.5;
+}
+
+.blob--coral { width: 46vw; height: 46vw; background: #ffd9c7; top: -14vw; right: -8vw; }
+.blob--sun  { width: 40vw; height: 40vw; background: #ffe9b8; bottom: -16vw; left: -6vw; }
+.blob--sky  { width: 30vw; height: 30vw; background: #cfe8fb; top: 30vh; left: 34vw; opacity: 0.4; }
+
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+
+/* ------- Scrollbars ------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
+*::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+*::-webkit-scrollbar-track { background: transparent; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
+
+input, textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* ------- Generic keyframes ------- */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-2px); }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
