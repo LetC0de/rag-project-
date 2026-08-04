@@ -1,11 +1,13 @@
 import type { Document, QueryRequest, QueryResponse } from './types';
 
 // FastAPI backend URL.
-//  - Production: set VITE_API_BASE_URL in frontend/.env (e.g. the Render URL).
+//  - Production: set VITE_API_BASE_URL to the Render URL (e.g.
+//    https://enterprise-assistant-th9z.onrender.com). FastAPI routes are mounted
+//    WITHOUT an /api prefix, so the base is used as-is.
 //  - Local dev: leave unset and the Vite dev proxy forwards /api -> :8000
-//    (see vite.config.ts), so '/api' stays as the default.
+//    (see vite.config.ts), stripping the /api prefix — so '/api' stays the default.
 const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, '') ?? '';
-const BASE = API_BASE ? `${API_BASE}/api` : '/api';
+const BASE = API_BASE || '/api';
 
 async function handle<T>(res: Response): Promise<T> {
   if (!res.ok) {
