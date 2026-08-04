@@ -1,11 +1,10 @@
 from fastapi import UploadFile
-from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from sqlalchemy.orm import Session
 import os
 import tempfile
 
 from src.document.model import DocumentModel
+from src.rag.loader import load_and_split_pdf
 from src.rag.vector_store import vector_store
 
 
@@ -46,22 +45,11 @@ async def upload_doc(file: UploadFile, db: Session):
             temp_file_path = temp_file.name
 
         # ==========================
-        # Extract Text
+        # Extract Text & Split Documents
         # ==========================
+        # load_and_split_pdf: from src/rag/loader.py
 
-        loader = PyPDFLoader(temp_file_path)
-        docs = loader.load()
-
-        # ==========================
-        # Split Documents
-        # ==========================
-
-        splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200
-        )
-
-        chunks = splitter.split_documents(docs)
+        chunks = load_and_split_pdf(temp_file_path)
 
         # ==========================
         # Step 2 - Add Metadata in Every Chunk
