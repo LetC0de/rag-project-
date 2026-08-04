@@ -1,5 +1,4 @@
 from langchain_mistralai import ChatMistralAI
+from src.utils.settings import settings
 
-llm = ChatMistralAI(
-    model="mistral-small-2506"
-)
+llm = ChatMistralAI(model=settings.LLM_MODEL)

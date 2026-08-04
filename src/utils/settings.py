@@ -5,6 +5,7 @@ class Settings(BaseSettings):
 
     MISTRAL_API_KEY: str
     MISTRAL_MODEL: str
+    LLM_MODEL: str
     QDRANT_URL: str
     QDRANT_API_KEY: str
     DB_CONNECTION: str
