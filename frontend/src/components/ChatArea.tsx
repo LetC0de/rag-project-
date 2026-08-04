@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { ChatMessage, Document } from '../lib/types';
 import { ChatMessageView, DocumentChipAvatar, TypingDots } from './ChatMessage';
 import { Composer } from './Composer';
-import { LogoMark, SparkIcon, UploadIcon } from './Icons';
+import { LogoMark, MenuIcon, NewChatIcon, SparkIcon, UploadIcon } from './Icons';
 
 interface ChatAreaProps {
   messages: ChatMessage[];
@@ -18,6 +18,8 @@ interface ChatAreaProps {
   onSuggestion: (text: string) => void;
   onUpload: () => void;
   onStreamingDone: (messageId: string) => void;
+  isMobile: boolean;
+  onToggleSidebar: () => void;
 }
 
 const SUGGESTIONS = [
@@ -41,6 +43,8 @@ export function ChatArea({
   onSuggestion,
   onUpload,
   onStreamingDone,
+  isMobile,
+  onToggleSidebar,
 }: ChatAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -53,6 +57,49 @@ export function ChatArea({
 
   return (
     <main className="chat">
+      {/* Mobile header bar */}
+      {isMobile && (
+        <div className="chat__mobile-header">
+          <button
+            className="chat__hamburger"
+            onClick={onToggleSidebar}
+            aria-label="Open sidebar"
+          >
+            <MenuIcon size={22} />
+          </button>
+
+          <div className="chat__mobile-brand">
+            <span className="chat__mobile-title">
+              {activeDocument ? activeDocument.filename : 'Knowledge'}
+            </span>
+            {activeDocument && (
+              <span className="chat__mobile-sub">
+                {activeDocument.status === 'processed' ? 'Ready' : activeDocument.status}
+              </span>
+            )}
+          </div>
+
+          <div className="chat__mobile-actions">
+            <button
+              className="chat__mobile-action"
+              onClick={onToggleSidebar}
+              aria-label="New chat"
+              title="New chat"
+            >
+              <NewChatIcon size={19} />
+            </button>
+            <button
+              className="chat__mobile-action"
+              onClick={onUpload}
+              aria-label="Upload document"
+              title="Upload document"
+            >
+              <UploadIcon size={19} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {hasChat ? (
         <div className="chat__thread" ref={scrollRef}>
           <div className="chat__thread-inner">
@@ -87,7 +134,7 @@ export function ChatArea({
             <div className="welcome__mark"><LogoMark size={46} /></div>
             <h1 className="welcome__title">
               {activeDocument ? (
-                <>Ask anything about <em>“{activeDocument.filename}”</em></>
+                <>Ask anything about <em>"{activeDocument.filename}"</em></>
               ) : (
                 <>Chat with your <em>documents</em></>
               )}

@@ -10,17 +10,18 @@ interface DocumentPickerProps {
   onSelect: (id: number) => void;
   onUpload: () => void;
   onClose: () => void;
+  isMobile: boolean;
 }
 
-export function DocumentPicker({ open, anchor, documents, onSelect, onUpload, onClose }: DocumentPickerProps) {
+export function DocumentPicker({ open, anchor, documents, onSelect, onUpload, onClose, isMobile }: DocumentPickerProps) {
   const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open || !anchor) return;
+    if (!open || isMobile || !anchor) return;
     const r = anchor.getBoundingClientRect();
     setPos({ top: r.bottom + 8, left: Math.min(r.left, window.innerWidth - 300) });
-  }, [open, anchor]);
+  }, [open, anchor, isMobile]);
 
   useEffect(() => {
     if (!open) return;
@@ -31,12 +32,23 @@ export function DocumentPicker({ open, anchor, documents, onSelect, onUpload, on
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [open, onClose]);
 
+  // Close on Escape
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, onClose]);
+
   if (!open) return null;
 
   const ready = documents.filter((d) => d.status === 'processed');
+  const style = isMobile ? {} : { top: pos.top, left: pos.left };
 
   return (
-    <div className="picker" ref={ref} style={{ top: pos.top, left: pos.left }} role="listbox" aria-label="Choose a document">
+    <div className="picker" ref={ref} style={style} role="listbox" aria-label="Choose a document">
       <div className="picker__head">
         <span className="picker__title">Chat with a document</span>
       </div>

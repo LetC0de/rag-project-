@@ -5,6 +5,23 @@
   overflow: hidden;
 }
 
+/* ---------- Sidebar overlay (mobile) ---------- */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: fade-in 0.2s ease both;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.sidebar-overlay--visible {
+  display: block;
+}
+
 /* ---------- Toast ---------- */
 .toast {
   position: fixed;
@@ -34,7 +51,11 @@
   color: #a86808;
 }
 
+/* ============================================================
+   Responsive — Mobile (< 860px)
+   ============================================================ */
 @media (max-width: 860px) {
+  /* Sidebar becomes a slide-in drawer */
   .sidebar {
     position: absolute;
     left: 0;
@@ -42,13 +63,17 @@
     bottom: 0;
     z-index: 30;
     width: var(--sidebar-w);
+    transform: translateX(0);
+    transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
   }
 
   .sidebar--collapsed {
-    width: 0;
     transform: translateX(-100%);
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
   }
 
+  /* Chat fills full width */
   .chat__thread-inner,
   .composer {
     max-width: 100%;
@@ -56,5 +81,26 @@
 
   .welcome__suggestions {
     grid-template-columns: 1fr;
+  }
+
+  /* Toasts closer to bottom on mobile */
+  .toast {
+    bottom: calc(16px + var(--safe-bottom));
+    font-size: 12.5px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    max-width: calc(100vw - 28px);
+  }
+}
+
+/* ============================================================
+   Responsive — Small mobile (< 480px)
+   ============================================================ */
+@media (max-width: 480px) {
+  .toast {
+    bottom: calc(12px + var(--safe-bottom));
+    font-size: 12px;
+    padding: 9px 14px;
+    max-width: calc(100vw - 24px);
   }
 }

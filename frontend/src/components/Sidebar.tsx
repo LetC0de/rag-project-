@@ -1,19 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Document } from '../lib/types';
 import { docColor, formatDate, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { LogoMark, NewChatIcon, TrashIcon, UploadIcon, ChevronIcon } from './Icons';
+import { LogoMark, NewChatIcon, TrashIcon, UploadIcon, ChevronIcon, XIcon } from './Icons';
 
 interface SidebarProps {
   documents: Document[];
   selectedId: number | null;
+  collapsed: boolean;
   onSelect: (id: number) => void;
   onNewChat: () => void;
   onUpload: () => void;
   onDelete: (id: number) => Promise<void>;
+  onClose: () => void;
+  isMobile: boolean;
 }
 
-export function Sidebar({ documents, selectedId, onSelect, onNewChat, onUpload, onDelete }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState(false);
+export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat, onUpload, onDelete, onClose, isMobile }: SidebarProps) {
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const confirmTimer = useRef<number | null>(null);
@@ -50,13 +52,28 @@ export function Sidebar({ documents, selectedId, onSelect, onNewChat, onUpload, 
             <span className="brand__tag">chat with your docs</span>
           </span>
         </button>
-        <button
-          className="sidebar__collapse"
-          onClick={() => setCollapsed((c) => !c)}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          <ChevronIcon />
-        </button>
+
+        {/* Close button — visible only on mobile */}
+        {isMobile && (
+          <button
+            className="sidebar__close"
+            onClick={onClose}
+            aria-label="Close sidebar"
+          >
+            <XIcon size={20} />
+          </button>
+        )}
+
+        {/* Collapse toggle — visible only on desktop */}
+        {!isMobile && (
+          <button
+            className="sidebar__collapse"
+            onClick={onClose}
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            <ChevronIcon />
+          </button>
+        )}
       </div>
 
       <div className="sidebar__body">

@@ -53,6 +53,16 @@
 
   --sidebar-w: 292px;
   --transition: 200ms cubic-bezier(0.33, 1, 0.68, 1);
+
+  /* Mobile / responsive tokens */
+  --mobile-header-h: 56px;
+  --mobile-touch: 44px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --mobile-pad: 14px;
+  --overlay-bg: rgba(43, 38, 32, 0.38);
 }
 
 * {
@@ -75,6 +85,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+  /* Prevent pull-to-refresh on mobile */
+  overscroll-behavior: none;
 }
 
 /* ------- Ambient background: sun-warmed blobs + grain ------- */
@@ -122,6 +134,9 @@ button {
   border: none;
   background: none;
   color: inherit;
+  /* Ensure minimum touch target on all buttons */
+  min-height: var(--mobile-touch);
+  min-width: var(--mobile-touch);
 }
 
 input, textarea {
@@ -151,10 +166,46 @@ input, textarea {
   100% { transform: scale(1); opacity: 1; }
 }
 
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+/* ============================================================
+   Responsive breakpoint helpers
+   Mobile-first adjustments for screens < 860px
+   ============================================================ */
+@media (max-width: 860px) {
+  :root {
+    --sidebar-w: 280px;
+    --mobile-pad: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --mobile-pad: 10px;
+  }
+
+  body {
+    font-size: 15px;
   }
 }

@@ -9,6 +9,7 @@
   background: linear-gradient(180deg, rgba(255, 253, 249, 0.9), rgba(250, 246, 239, 0.72));
   border-right: 1px solid var(--line);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   z-index: 2;
   transition: width var(--transition), min-width var(--transition);
   overflow: hidden;
@@ -66,6 +67,22 @@
   letter-spacing: 0.2px;
 }
 
+.sidebar__close {
+  display: none; /* shown only on mobile */
+  grid: place-items;
+  width: var(--mobile-touch);
+  height: var(--mobile-touch);
+  border-radius: 12px;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+  transition: background var(--transition), color var(--transition);
+}
+
+.sidebar__close:hover {
+  background: var(--line-soft);
+  color: var(--ink);
+}
+
 .sidebar__collapse {
   display: grid;
   place-items: center;
@@ -93,6 +110,8 @@
   overflow-x: hidden;
   padding-right: 2px;
   white-space: nowrap;
+  /* Improve momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
 }
 
 .new-chat {
@@ -358,4 +377,79 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* ============================================================
+   Mobile (< 860px)
+   ============================================================ */
+@media (max-width: 860px) {
+  .sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 30;
+    width: var(--sidebar-w);
+    min-width: var(--sidebar-w);
+    transform: translateX(0);
+    border-right: none;
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    box-shadow: 8px 0 32px -8px rgba(43, 38, 32, 0.18);
+    background: linear-gradient(180deg, rgba(255, 253, 249, 0.97), rgba(250, 246, 239, 0.95));
+  }
+
+  .sidebar--collapsed {
+    transform: translateX(-100%);
+  }
+
+  .sidebar__close {
+    display: grid;
+  }
+
+  .sidebar__collapse {
+    display: none;
+  }
+
+  /* Larger touch targets for doc items */
+  .doc-item__main {
+    padding: 11px 12px;
+    gap: 12px;
+  }
+
+  .doc-item__avatar {
+    width: 40px;
+    height: 40px;
+  }
+
+  .doc-item__name {
+    font-size: 14px;
+  }
+
+  .doc-item__del {
+    opacity: 0.7;
+    width: 44px;
+  }
+
+  .new-chat {
+    padding: 12px 14px;
+    font-size: 15px;
+  }
+
+  .upload-btn {
+    padding: 12px 14px;
+  }
+}
+
+/* ============================================================
+   Small mobile (< 480px)
+   ============================================================ */
+@media (max-width: 480px) {
+  .sidebar {
+    width: min(85vw, var(--sidebar-w));
+    min-width: min(85vw, var(--sidebar-w));
+  }
+
+  .brand__name {
+    font-size: 19px;
+  }
 }

@@ -21,10 +21,29 @@ export default function App() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerAnchor, setPickerAnchor] = useState<HTMLElement | null>(null);
   const [loadError, setLoadError] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth <= 860 : false
+  );
   const abortRef = useRef<AbortController | null>(null);
 
   const activeDocument = documents.find((d) => d.id === selectedId) ?? null;
   const needsDocument = messages.length > 0 && !activeDocument;
+
+  // Track viewport width for mobile mode
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 860px)');
+    const handler = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
+    handler(mq);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  // On mobile, start with sidebar collapsed
+  useEffect(() => {
+    if (isMobile) setSidebarOpen(false);
+    else setSidebarOpen(true);
+  }, [isMobile]);
 
   const refreshDocuments = useCallback(async () => {
     try {
@@ -50,10 +69,8 @@ export default function App() {
 
   const handleSelect = (id: number) => {
     setSelectedId(id);
-    setComposerValue((prev) => {
-      // Keep suggestions from a previous doc; new chat flow resets anyway.
-      return prev;
-    });
+    // Close sidebar on mobile after selection
+    if (isMobile) setSidebarOpen(false);
   };
 
   const handleNewChat = () => {
@@ -61,6 +78,7 @@ export default function App() {
     setSelectedId(null);
     setComposerValue('');
     setPickerOpen(false);
+    if (isMobile) setSidebarOpen(false);
   };
 
   const handleDelete = async (id: number) => {
@@ -162,6 +180,8 @@ export default function App() {
 
   const closePicker = () => setPickerOpen(false);
 
+  const toggleSidebar = () => setSidebarOpen((v) => !v);
+
   return (
     <div className="app">
       <div className="app-bg" aria-hidden="true">
@@ -171,13 +191,28 @@ export default function App() {
         <div className="grain" />
       </div>
 
+      {/* Mobile sidebar backdrop */}
+      {isMobile && sidebarOpen && (
+        <div
+          className="sidebar-overlay sidebar-overlay--visible"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
       <Sidebar
         documents={documents}
         selectedId={selectedId}
+        collapsed={!sidebarOpen}
         onSelect={handleSelect}
         onNewChat={handleNewChat}
-        onUpload={() => setUploadOpen(true)}
+        onUpload={() => {
+          setUploadOpen(true);
+          if (isMobile) setSidebarOpen(false);
+        }}
         onDelete={handleDelete}
+        onClose={() => setSidebarOpen(false)}
+        isMobile={isMobile}
       />
 
       <ChatArea
@@ -201,6 +236,8 @@ export default function App() {
         }}
         onUpload={() => setUploadOpen(true)}
         onStreamingDone={handleStreamingDone}
+        isMobile={isMobile}
+        onToggleSidebar={toggleSidebar}
       />
 
       {loadError && (
@@ -223,6 +260,7 @@ export default function App() {
         onSelect={handleSelect}
         onUpload={() => setUploadOpen(true)}
         onClose={closePicker}
+        isMobile={isMobile}
       />
     </div>
   );

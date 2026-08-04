@@ -7,6 +7,7 @@
   padding: 20px;
   background: rgba(43, 38, 32, 0.32);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   animation: fade-in 0.2s ease both;
 }
 
@@ -45,8 +46,8 @@
 .modal__close {
   display: grid;
   place-items: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   color: var(--ink-faint);
   transition: background var(--transition), color var(--transition);
@@ -69,11 +70,17 @@
   background: var(--bg);
   cursor: pointer;
   transition: border-color var(--transition), background var(--transition), transform var(--transition);
+  /* Ensure touch-friendly minimum */
+  min-height: 180px;
 }
 
 .dropzone:hover {
   border-color: var(--brand);
   background: #fffaf5;
+}
+
+.dropzone:active {
+  transform: scale(0.99);
 }
 
 .dropzone--over {
@@ -156,6 +163,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
 }
 
 .upload-status__bar {
@@ -245,4 +253,116 @@
 .modal__primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 12px 24px -8px var(--brand-glow);
+}
+
+/* ============================================================
+   Mobile (< 860px)
+   ============================================================ */
+@media (max-width: 860px) {
+  .modal-overlay {
+    padding: var(--mobile-pad);
+    align-items: flex-end;
+    padding-bottom: calc(20px + var(--safe-bottom));
+  }
+
+  .modal {
+    border-radius: 22px 22px 20px 20px;
+    padding: 20px;
+    animation: slide-up 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+
+  .modal__title {
+    font-size: 20px;
+  }
+
+  .dropzone {
+    padding: 32px 20px;
+    min-height: 160px;
+  }
+
+  .dropzone__icon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .dropzone__title {
+    font-size: 14.5px;
+  }
+
+  .dropzone__sub {
+    font-size: 13px;
+  }
+}
+
+/* ============================================================
+   Small mobile (< 480px)
+   ============================================================ */
+@media (max-width: 480px) {
+  .modal-overlay {
+    padding: 8px;
+    padding-bottom: calc(8px + var(--safe-bottom));
+  }
+
+  .modal {
+    padding: 18px;
+    border-radius: 20px 20px 18px 18px;
+  }
+
+  .modal__head {
+    margin-bottom: 14px;
+  }
+
+  .modal__title {
+    font-size: 18px;
+  }
+
+  .dropzone {
+    padding: 28px 16px;
+    min-height: 140px;
+    border-radius: 14px;
+  }
+
+  .dropzone__icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+  }
+
+  .dropzone__icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .dropzone__title {
+    font-size: 14px;
+  }
+
+  .upload-status__file {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+
+  .upload-status__icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .upload-status__name {
+    font-size: 13px;
+  }
+
+  .upload-status__check {
+    width: 46px;
+    height: 46px;
+  }
+
+  .upload-status__done-title {
+    font-size: 15px;
+  }
+
+  .modal__primary {
+    width: 100%;
+    padding: 12px;
+    text-align: center;
+  }
 }
