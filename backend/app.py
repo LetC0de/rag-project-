@@ -5,6 +5,7 @@ from src.qdrant.collection import create_collection
 from src.document.router import document_router
 from src.query.router import chat_router
 from src.upload.router import upload_router
+from src.user.router import user_router
 from src.utils.db import base,engine
 from src.utils.settings import settings
 
@@ -20,9 +21,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Enterprise Knowledge Asistant", lifespan=lifespan)
 
-# Allow the frontend (Vercel) to call this API.
-# Origins come from settings.CORS_ORIGINS (env var CORS_ORIGINS in .env).
-# Defaults cover the Vite dev server; add the deployed origin for production.
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -33,6 +32,7 @@ app.add_middleware(
 app.include_router(upload_router)
 app.include_router(chat_router)
 app.include_router(document_router)
+app.include_router(user_router)
 
 
 @app.get("/")

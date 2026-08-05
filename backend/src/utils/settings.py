@@ -10,15 +10,17 @@ class Settings(BaseSettings):
     QDRANT_API_KEY: str
     DB_CONNECTION: str
 
-    # Allowed browser origins (JSON list). Override in .env for the deployed
-    # frontend, e.g. CORS_ORIGINS=["https://enterpriseassistant.vercel.app"]
+
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ]
 
-    # Primary frontend origin (used for links / docs). Same default as above.
     FRONTEND_URL: str = "http://localhost:5173"
+
+    SECRET_KEY: str
+    ALGORITHM: str 
+    EXP_TIME: int 
 
 
 settings = Settings()
