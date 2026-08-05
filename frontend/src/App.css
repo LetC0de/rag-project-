@@ -5,6 +5,48 @@
   overflow: hidden;
 }
 
+/* ---------- Boot screen (session restore) ---------- */
+.app--boot {
+  align-items: center;
+  justify-content: center;
+}
+
+.boot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.boot__mark {
+  filter: drop-shadow(0 8px 20px var(--brand-glow));
+  animation: pop 0.4s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+.boot__bar {
+  width: 84px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--line);
+  overflow: hidden;
+}
+
+.boot__bar-fill {
+  display: block;
+  width: 45%;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, var(--brand), var(--sun));
+  animation: boot-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes boot-slide {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(240%); }
+}
+
 /* ---------- Sidebar overlay (mobile) ---------- */
 .sidebar-overlay {
   display: none;

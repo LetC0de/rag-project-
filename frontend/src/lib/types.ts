@@ -1,5 +1,25 @@
 // Shared API types mirroring the FastAPI backend.
 
+export interface User {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  role?: string;
+}
+
+export interface RegisterInput {
+  name: string;
+  username: string;
+  password: string;
+  email: string;
+}
+
+export interface LoginInput {
+  username: string;
+  password: string;
+}
+
 export interface Document {
   id: number;
   filename: string;

@@ -3,27 +3,40 @@ from sqlalchemy.orm import Session
 
 from src.document.model import DocumentModel
 from src.document.schema import OutSchema
+from src.user.model import UserModel
 from src.utils.db import get_db
+from src.utils.helpers import is_authenticated
 
 document_router = APIRouter(prefix="/documents", tags=["Documents"])
 
 
 @document_router.get("/", response_model=list[OutSchema])
-async def list_documents(db: Session = Depends(get_db)):
-    """List all documents, newest first."""
+async def list_documents(
+    user: UserModel = Depends(is_authenticated),
+    db: Session = Depends(get_db),
+):
+    """List the current user's documents, newest first."""
     return (
         db.query(DocumentModel)
+        .filter(DocumentModel.user_id == user.id)
         .order_by(DocumentModel.created_at.desc())
         .all()
     )
 
 
 @document_router.delete("/{document_id}")
-async def delete_document(document_id: int, db: Session = Depends(get_db)):
+async def delete_document(
+    document_id: int,
+    user: UserModel = Depends(is_authenticated),
+    db: Session = Depends(get_db),
+):
     """Delete a document record (and its chunks in Qdrant)."""
     document = (
         db.query(DocumentModel)
-        .filter(DocumentModel.id == document_id)
+        .filter(
+            DocumentModel.id == document_id,
+            DocumentModel.user_id == user.id,
+        )
         .first()
     )
 

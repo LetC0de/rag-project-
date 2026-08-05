@@ -1,17 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { askQuestion, deleteDocument, listDocuments } from './lib/api';
+import { useAuth } from './lib/auth';
 import type { ChatMessage, Document } from './lib/types';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { UploadModal } from './components/UploadModal';
 import { DocumentPicker } from './components/DocumentPicker';
+import { AuthScreen } from './components/AuthScreen';
+import { LogoMark } from './components/Icons';
 import './App.css';
 import './components/Sidebar.css';
 import './components/ChatArea.css';
 import './components/UploadModal.css';
 import './components/DocumentPicker.css';
+import './components/AuthScreen.css';
 
 export default function App() {
+  const { user, isBooting, logout } = useAuth();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -182,6 +187,28 @@ export default function App() {
 
   const toggleSidebar = () => setSidebarOpen((v) => !v);
 
+  // While restoring the session from the stored token, show a brief boot screen.
+  if (isBooting) {
+    return (
+      <div className="app app--boot">
+        <div className="app-bg" aria-hidden="true">
+          <div className="blob blob--coral" />
+          <div className="blob blob--sun" />
+          <div className="blob blob--sky" />
+          <div className="grain" />
+        </div>
+        <div className="boot">
+          <span className="boot__mark"><LogoMark size={44} /></span>
+          <span className="boot__bar"><span className="boot__bar-fill" /></span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthScreen />;
+  }
+
   return (
     <div className="app">
       <div className="app-bg" aria-hidden="true">
@@ -213,6 +240,8 @@ export default function App() {
         onDelete={handleDelete}
         onClose={() => setSidebarOpen(false)}
         isMobile={isMobile}
+        user={user}
+        onLogout={logout}
       />
 
       <ChatArea

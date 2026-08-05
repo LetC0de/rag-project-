@@ -4,15 +4,19 @@ from src.query.schema import QueryRequestSchema
 from src.rag.llm import llm
 from src.rag.prompt import prompt
 from src.rag.retriever import get_retriever
+from src.user.model import UserModel
 from sqlalchemy.orm import Session
 
 
-async def ask_question(request: QueryRequestSchema, db: Session):
+async def ask_question(request: QueryRequestSchema, db: Session, user: UserModel):
 
-    # Check document exists in PostgreSQL before querying Qdrant
+    # Check document exists (and belongs to the user) before querying Qdrant
     document = (
         db.query(DocumentModel)
-        .filter(DocumentModel.id == request.document_id)
+        .filter(
+            DocumentModel.id == request.document_id,
+            DocumentModel.user_id == user.id,
+        )
         .first()
     )
 

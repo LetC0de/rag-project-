@@ -1,4 +1,11 @@
-import type { Document, QueryRequest, QueryResponse } from './types';
+import type {
+  Document,
+  LoginInput,
+  QueryRequest,
+  QueryResponse,
+  RegisterInput,
+  User,
+} from './types';
 
 // FastAPI backend URL.
 //  - Production: set VITE_API_BASE_URL to the Render URL (e.g.
@@ -9,7 +16,27 @@ import type { Document, QueryRequest, QueryResponse } from './types';
 const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, '') ?? '';
 const BASE = API_BASE || '/api';
 
+/** Auth handler installed once by the AuthProvider; called when an API returns 401. */
+let onUnauthorized: (() => void) | null = null;
+export function setOnUnauthorized(fn: (() => void) | null) {
+  onUnauthorized = fn;
+}
+
+let token: string | null = null;
+export function setAuthToken(t: string | null) {
+  token = t;
+}
+
+export function authHeaders(extra?: Record<string, string>): Record<string, string> {
+  const headers: Record<string, string> = { ...extra };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
+}
+
 async function handle<T>(res: Response): Promise<T> {
+  if (res.status === 401) {
+    onUnauthorized?.();
+  }
   if (!res.ok) {
     let detail = res.statusText;
     try {
@@ -26,12 +53,15 @@ async function handle<T>(res: Response): Promise<T> {
 }
 
 export async function listDocuments(): Promise<Document[]> {
-  const res = await fetch(`${BASE}/documents/`);
+  const res = await fetch(`${BASE}/documents/`, { headers: authHeaders() });
   return handle<Document[]>(res);
 }
 
 export async function deleteDocument(id: number): Promise<void> {
-  const res = await fetch(`${BASE}/documents/${id}`, { method: 'DELETE' });
+  const res = await fetch(`${BASE}/documents/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
   await handle<unknown>(res);
 }
 
@@ -42,6 +72,9 @@ export async function uploadDocument(file: File, onProgress?: (pct: number) => v
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `${BASE}/upload/upload`);
+
+    // Attach auth token after open, before send.
+    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
 
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable && onProgress) {
@@ -76,8 +109,33 @@ export async function uploadDocument(file: File, onProgress?: (pct: number) => v
 export async function askQuestion(payload: QueryRequest): Promise<QueryResponse> {
   const res = await fetch(`${BASE}/chat/query`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(payload),
   });
   return handle<QueryResponse>(res);
+}
+
+// ---------- Auth ----------
+
+export async function login(input: LoginInput): Promise<{ token: string }> {
+  const res = await fetch(`${BASE}/user/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  return handle<{ token: string }>(res);
+}
+
+export async function registerUser(input: RegisterInput): Promise<User> {
+  const res = await fetch(`${BASE}/user/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  return handle<User>(res);
+}
+
+export async function me(): Promise<User> {
+  const res = await fetch(`${BASE}/user/is_auth`, { headers: authHeaders() });
+  return handle<User>(res);
 }

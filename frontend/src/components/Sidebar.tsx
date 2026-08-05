@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Document } from '../lib/types';
+import type { Document, User } from '../lib/types';
 import { docColor, formatDate, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { LogoMark, NewChatIcon, TrashIcon, UploadIcon, ChevronIcon, XIcon } from './Icons';
+import { LogoMark, NewChatIcon, TrashIcon, UploadIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon } from './Icons';
 
 interface SidebarProps {
   documents: Document[];
@@ -13,9 +13,11 @@ interface SidebarProps {
   onDelete: (id: number) => Promise<void>;
   onClose: () => void;
   isMobile: boolean;
+  user: User | null;
+  onLogout: () => void;
 }
 
-export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat, onUpload, onDelete, onClose, isMobile }: SidebarProps) {
+export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat, onUpload, onDelete, onClose, isMobile, user, onLogout }: SidebarProps) {
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const confirmTimer = useRef<number | null>(null);
@@ -152,6 +154,29 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
             <span className="upload-btn__sub">Add a document to chat</span>
           </span>
         </button>
+
+        {user && (
+          <div className="sidebar__account">
+            <button className="account-btn" aria-label="Account menu" title={user.username}>
+              <span className="account-btn__avatar">
+                {initialsFromFilename(user.name || user.username)}
+              </span>
+              <span className="account-btn__meta">
+                <span className="account-btn__name">{user.name || user.username}</span>
+                <span className="account-btn__sub">@{user.username}</span>
+              </span>
+              <span className="account-btn__role"><UserIcon size={14} /></span>
+            </button>
+            <button
+              className="account-logout"
+              onClick={onLogout}
+              aria-label="Sign out"
+              title="Sign out"
+            >
+              <LogoutIcon size={16} />
+            </button>
+          </div>
+        )}
       </div>
     </aside>
   );

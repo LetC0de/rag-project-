@@ -6,9 +6,10 @@ import tempfile
 from src.document.model import DocumentModel
 from src.rag.loader import load_and_split_pdf
 from src.rag.vector_store import vector_store
+from src.user.model import UserModel
 
 
-async def upload_doc(file: UploadFile, db: Session):
+async def upload_doc(file: UploadFile, db: Session, user: UserModel):
 
     # ==========================
     # Step 1 - Save Metadata First
@@ -16,7 +17,8 @@ async def upload_doc(file: UploadFile, db: Session):
 
     document = DocumentModel(
         filename=file.filename,
-        status="processing"
+        status="processing",
+        user_id=user.id,
     )
 
     db.add(document)
