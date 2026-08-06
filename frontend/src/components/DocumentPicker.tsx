@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Document } from '../lib/types';
 import { docColor, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { UploadIcon, PlusIcon, XIcon } from './Icons';
+import { PlusIcon, XIcon } from './Icons';
 
 interface DocumentPickerProps {
   open: boolean;
