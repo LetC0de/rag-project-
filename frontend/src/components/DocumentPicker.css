@@ -15,7 +15,10 @@
 }
 
 .picker__head {
-  padding: 2px 6px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 2px 8px 6px;
 }
 
 .picker__title {
@@ -24,6 +27,39 @@
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--ink-faint);
+}
+
+/* Close button — always visible so the menu is dismissible */
+.picker__close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  color: var(--ink-faint);
+  transition: background var(--transition), color var(--transition);
+}
+
+.picker__close:hover {
+  background: var(--line-soft);
+  color: var(--ink);
+}
+
+.picker__close:active {
+  transform: scale(0.92);
+}
+
+/* Mobile tap-outside backdrop behind the bottom sheet */
+.picker__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 44; /* below the sheet (45) but above the app (30) */
+  background: var(--overlay-bg);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  animation: fade-in 0.2s ease both;
+  border: none;
+  cursor: default;
 }
 
 /* ---------- Sections ---------- */
@@ -212,7 +248,13 @@
   }
 
   .picker__head {
-    padding: 0 6px 8px;
+    padding: 0 2px 8px 6px;
+  }
+
+  .picker__close {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
   }
 
   .picker__upload-row {

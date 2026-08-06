@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Document } from '../lib/types';
 import { docColor, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { UploadIcon, PlusIcon } from './Icons';
+import { UploadIcon, PlusIcon, XIcon } from './Icons';
 
 interface DocumentPickerProps {
   open: boolean;
@@ -53,10 +53,19 @@ export function DocumentPicker({ open, anchor, documents, onSelect, onUpload, on
   };
 
   return (
-    <div className="picker" ref={ref} style={style} role="menu" aria-label="Add a document">
-      <div className="picker__head">
-        <span className="picker__title">Add a document</span>
-      </div>
+    <>
+      {/* Mobile tap-outside backdrop (sits behind the sheet, above the app) */}
+      {isMobile && (
+        <button className="picker__backdrop" onClick={onClose} aria-label="Close menu" />
+      )}
+
+      <div className="picker" ref={ref} style={style} role="menu" aria-label="Add a document">
+        <div className="picker__head">
+          <span className="picker__title">Add a document</span>
+          <button className="picker__close" onClick={onClose} aria-label="Close">
+            <XIcon size={16} />
+          </button>
+        </div>
 
       {/* Option 1 — upload a new PDF */}
       <div className="picker__section">
@@ -103,6 +112,7 @@ export function DocumentPicker({ open, anchor, documents, onSelect, onUpload, on
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
