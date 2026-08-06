@@ -86,8 +86,8 @@
 }
 
 .sidebar__close {
-  display: none; /* shown only on mobile */
-  grid: place-items;
+  display: none; /* shown only on mobile (set to grid in the mobile block) */
+  place-items: center;
   width: var(--mobile-touch);
   height: var(--mobile-touch);
   border-radius: 12px;
@@ -104,21 +104,17 @@
 .sidebar__collapse {
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 9px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   color: var(--ink-faint);
   flex-shrink: 0;
-  transition: background var(--transition), color var(--transition), transform var(--transition);
+  transition: background var(--transition), color var(--transition);
 }
 
 .sidebar__collapse:hover {
   background: var(--line-soft);
   color: var(--ink);
-}
-
-.sidebar--collapsed .sidebar__collapse svg {
-  transform: rotate(180deg);
 }
 
 .sidebar__body {

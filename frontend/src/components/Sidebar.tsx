@@ -55,7 +55,7 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
           </span>
         </button>
 
-        {/* Close button — visible only on mobile */}
+        {/* Close button — cross icon, mobile + desktop */}
         {isMobile && (
           <button
             className="sidebar__close"
@@ -66,7 +66,7 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
           </button>
         )}
 
-        {/* Collapse (close) toggle — visible only on desktop when open */}
+        {/* Collapse (close) toggle — cross icon, desktop when open */}
         {!isMobile && !collapsed && (
           <button
             className="sidebar__collapse"
@@ -74,7 +74,7 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
             aria-label="Collapse sidebar"
             title="Collapse sidebar"
           >
-            <ChevronIcon />
+            <XIcon size={18} />
           </button>
         )}
       </div>
