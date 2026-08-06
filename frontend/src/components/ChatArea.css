@@ -703,27 +703,44 @@
     display: flex;
   }
 
-  /* Welcome screen adjustments */
+  /* Welcome screen adjustments — content starts from the top on mobile */
   .chat__welcome {
-    padding: 20px var(--mobile-pad) 10px;
+    padding: 10px var(--mobile-pad) 12px;
   }
 
+  .welcome__inner {
+    margin: 0 auto;              /* not vertically centered — anchored to top */
+    padding-top: 4px;
+  }
+
+  /* Chat logo stays on desktop only — hidden on mobile/tablet */
+  .welcome__mark {
+    display: none;
+  }
+
+  
   .welcome__title {
-    font-size: clamp(22px, 5vw, 32px);
-    margin: 18px 0 10px;
+    font-size: clamp(23px, 5.5vw, 32px);
+    margin: 16px 0 10px;
     letter-spacing: -0.4px;
+    line-height: 1.15;
   }
 
   .welcome__sub {
-    font-size: 13.5px;
+    font-size: 14px;
     max-width: 360px;
-    line-height: 1.55;
+    line-height: 1.6;
+  }
+
+  .welcome__doc {
+    margin-top: 18px;
   }
 
   .welcome__upload {
-    padding: 13px 20px;
-    font-size: 14px;
+    padding: 14px 22px;
+    font-size: 14.5px;
     border-radius: var(--radius-pill);
+    margin-top: 24px;
   }
 
   /* Thread adjustments */
@@ -889,11 +906,6 @@
   .composer__send {
     width: 40px;
     height: 40px;
-  }
-
-  .welcome__mark svg {
-    width: 36px;
-    height: 36px;
   }
 
   .welcome__title {
