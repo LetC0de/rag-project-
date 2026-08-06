@@ -15,12 +15,30 @@
   overflow: hidden;
 }
 
+/* Desktop collapsed: shrink to a slim rail instead of width:0 so the
+   floating expand button stays reachable (width:0 clips it). */
 .sidebar--collapsed {
-  width: 0;
-  min-width: 0;
-  padding-left: 0;
-  padding-right: 0;
-  border-right-color: transparent;
+  width: 56px;
+  min-width: 56px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* When collapsed on desktop, hide all the busy content and show only
+   the brand mark + expand chevron. (Mobile override keeps its drawer.) */
+.sidebar--collapsed .sidebar__head {
+  justify-content: center;
+}
+
+.sidebar--collapsed .brand__text,
+.sidebar--collapsed .sidebar__collapse,
+.sidebar--collapsed .sidebar__body,
+.sidebar--collapsed .sidebar__foot {
+  display: none;
+}
+
+.sidebar--collapsed .brand {
+  padding: 6px;
 }
 
 .sidebar__head {
@@ -327,56 +345,37 @@
   margin-top: 12px;
 }
 
-.upload-btn {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 13px;
-  background: #fff;
-  border: 1.5px solid var(--line);
-  box-shadow: var(--shadow-sm);
-  text-align: left;
-  transition: border-color var(--transition), transform var(--transition), box-shadow var(--transition);
-}
-
-.upload-btn:hover {
-  border-color: var(--brand);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-pop);
-}
-
-.upload-btn__icon {
+/* ---------- Floating expand button (desktop, collapsed) ---------- */
+.sidebar__expand {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 18px;
+  z-index: 31;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  color: #fff;
-  background: linear-gradient(135deg, var(--sun), var(--brand));
-  box-shadow: 0 4px 10px -3px var(--brand-glow);
-  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  box-shadow: var(--shadow-pop);
+  color: var(--ink-soft);
+  transition: background var(--transition), color var(--transition), transform var(--transition), border-color var(--transition);
 }
 
-.upload-btn__text {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
+.sidebar__expand svg {
+  transform: rotate(-90deg);
 }
 
-.upload-btn__title {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--ink);
+.sidebar__expand:hover {
+  color: var(--brand);
+  border-color: var(--brand);
+  transform: translateX(-50%) translateY(-2px);
 }
 
-.upload-btn__sub {
-  font-size: 11.5px;
-  color: var(--ink-faint);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.sidebar__expand:active {
+  transform: translateX(-50%) scale(0.95);
 }
 
 /* ---------- Account chip / sign out (ChatGPT-style user menu) ---------- */
@@ -520,10 +519,6 @@
   .new-chat {
     padding: 12px 14px;
     font-size: 15px;
-  }
-
-  .upload-btn {
-    padding: 12px 14px;
   }
 }
 

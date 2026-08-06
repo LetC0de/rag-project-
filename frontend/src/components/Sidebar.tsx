@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Document, User } from '../lib/types';
 import { docColor, formatDate, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { LogoMark, NewChatIcon, TrashIcon, UploadIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon } from './Icons';
+import { LogoMark, NewChatIcon, TrashIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon } from './Icons';
 
 interface SidebarProps {
   documents: Document[];
@@ -9,15 +9,15 @@ interface SidebarProps {
   collapsed: boolean;
   onSelect: (id: number) => void;
   onNewChat: () => void;
-  onUpload: () => void;
   onDelete: (id: number) => Promise<void>;
   onClose: () => void;
+  onExpand: () => void;
   isMobile: boolean;
   user: User | null;
   onLogout: () => void;
 }
 
-export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat, onUpload, onDelete, onClose, isMobile, user, onLogout }: SidebarProps) {
+export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat, onDelete, onClose, onExpand, isMobile, user, onLogout }: SidebarProps) {
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const confirmTimer = useRef<number | null>(null);
@@ -66,17 +66,30 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
           </button>
         )}
 
-        {/* Collapse toggle — visible only on desktop */}
-        {!isMobile && (
+        {/* Collapse (close) toggle — visible only on desktop when open */}
+        {!isMobile && !collapsed && (
           <button
             className="sidebar__collapse"
             onClick={onClose}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            aria-label="Collapse sidebar"
+            title="Collapse sidebar"
           >
             <ChevronIcon />
           </button>
         )}
       </div>
+
+      {/* Floating open button — desktop, shown only when the sidebar is collapsed */}
+      {!isMobile && collapsed && (
+        <button
+          className="sidebar__expand"
+          onClick={onExpand}
+          aria-label="Expand sidebar"
+          title="Expand sidebar"
+        >
+          <ChevronIcon />
+        </button>
+      )}
 
       <div className="sidebar__body">
         <button className="new-chat" onClick={onNewChat}>
@@ -147,14 +160,6 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
       </div>
 
       <div className="sidebar__foot">
-        <button className="upload-btn" onClick={onUpload}>
-          <span className="upload-btn__icon"><UploadIcon size={17} /></span>
-          <span className="upload-btn__text">
-            <span className="upload-btn__title">Upload PDF</span>
-            <span className="upload-btn__sub">Add a document to chat</span>
-          </span>
-        </button>
-
         {user && (
           <div className="sidebar__account">
             <button className="account-btn" aria-label="Account menu" title={user.username}>

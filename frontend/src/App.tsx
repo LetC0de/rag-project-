@@ -237,12 +237,9 @@ export default function App() {
         collapsed={!sidebarOpen}
         onSelect={handleSelect}
         onNewChat={handleNewChat}
-        onUpload={() => {
-          setUploadOpen(true);
-          if (isMobile) setSidebarOpen(false);
-        }}
         onDelete={handleDelete}
         onClose={() => setSidebarOpen(false)}
+        onExpand={() => setSidebarOpen(true)}
         isMobile={isMobile}
         user={user}
         onLogout={logout}
