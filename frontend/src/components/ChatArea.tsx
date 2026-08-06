@@ -141,19 +141,21 @@ export function ChatArea({
               </button>
             )}
 
-            <div className="welcome__suggestions">
-              {SUGGESTIONS.map((s, i) => (
-                <button
-                  key={i}
-                  className="suggestion"
-                  onClick={() => onSuggestion(s.text)}
-                  style={{ animationDelay: `${120 + i * 70}ms` }}
-                >
-                  <span className="suggestion__icon">{s.icon}</span>
-                  <span className="suggestion__text">{s.text}</span>
-                </button>
-              ))}
-            </div>
+            {!isMobile && (
+              <div className="welcome__suggestions">
+                {SUGGESTIONS.map((s, i) => (
+                  <button
+                    key={i}
+                    className="suggestion"
+                    onClick={() => onSuggestion(s.text)}
+                    style={{ animationDelay: `${120 + i * 70}ms` }}
+                  >
+                    <span className="suggestion__icon">{s.icon}</span>
+                    <span className="suggestion__text">{s.text}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       )}

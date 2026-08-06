@@ -14,6 +14,18 @@ interface ComposerProps {
   disabled?: boolean;
 }
 
+// Rotating placeholder phrases shown one at a time inside the text box.
+// The first is the "pick a document" hint; the rest are follow-up prompts.
+const PLACEHOLDER_PHRASES = [
+  'Pick a document, then ask anything…',
+  'Summarize this document in a few bullet points.',
+  'What are the main key takeaways and conclusions?',
+  'Extract the key numbers, dates, and data points.',
+  'Explain the most important concepts in plain language.',
+];
+
+const ROTATE_MS = 3200;
+
 export function Composer({
   value,
   onChange,
@@ -27,6 +39,8 @@ export function Composer({
 }: ComposerProps) {
   const ref = useRef<HTMLTextAreaElement>(null);
   const [focused, setFocused] = useState(false);
+  const [phraseIndex, setPhraseIndex] = useState(0);
+  const [fading, setFading] = useState(false);
 
   const canSend = value.trim().length > 0 && !isBusy && !disabled;
 
@@ -36,6 +50,23 @@ export function Composer({
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 220) + 'px';
   }, [value]);
+
+  // Rotate the placeholder phrases every ROTATE_MS, with a small fade in/out.
+  useEffect(() => {
+    if (isBusy || value.trim().length > 0) return;
+    const id = window.setInterval(() => {
+      setFading(true);
+      window.setTimeout(() => {
+        setPhraseIndex((i) => (i + 1) % PLACEHOLDER_PHRASES.length);
+        setFading(false);
+      }, 240);
+    }, ROTATE_MS);
+    return () => window.clearInterval(id);
+  }, [isBusy, value]);
+
+  const placeholder = activeDocument
+    ? 'Ask anything about this document…'
+    : PLACEHOLDER_PHRASES[phraseIndex];
 
   const submit = () => {
     if (!canSend) return;
@@ -57,23 +88,30 @@ export function Composer({
         </div>
       )}
 
-      <textarea
-        ref={ref}
-        className="composer__input"
-        rows={1}
-        value={value}
-        placeholder={activeDocument ? 'Ask anything about this document…' : 'Pick a document, then ask anything…'}
-        onChange={(e) => onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            submit();
-          }
-        }}
-        disabled={disabled}
-      />
+      <div className="composer__input-wrap">
+        <textarea
+          ref={ref}
+          className="composer__input"
+          rows={1}
+          value={value}
+          placeholder={placeholder}
+          onChange={(e) => onChange(e.target.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              submit();
+            }
+          }}
+          disabled={disabled}
+        />
+        {!activeDocument && !isBusy && value.trim().length === 0 && (
+          <span className={`composer__phrases ${fading ? 'composer__phrases--fade' : ''}`} aria-hidden="true">
+            {placeholder}
+          </span>
+        )}
+      </div>
 
       <div className="composer__bar">
         <button

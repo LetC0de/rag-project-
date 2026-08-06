@@ -584,8 +584,37 @@
   font-size: max(14.5px, 16px);
 }
 
+/* Native placeholder is hidden when we render our rotating-phrase overlay */
 .composer__input::placeholder {
+  color: transparent;
+}
+
+/* Wrapper that holds the textarea + the animated placeholder overlay */
+.composer__input-wrap {
+  position: relative;
+}
+
+/* Rotating placeholder text shown over the empty textarea */
+.composer__phrases {
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  right: 8px;
+  pointer-events: none;
+  font-size: 14.5px;
+  line-height: 1.55;
   color: var(--ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.composer__phrases--fade {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 .composer__bar {
@@ -697,43 +726,6 @@
     border-radius: var(--radius-pill);
   }
 
-  /* Follow-up chips — very small, compact cluster on mobile */
-  .welcome__suggestions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 18px;
-    width: min(100%, 300px);
-  }
-
-  .suggestion {
-    padding: 6px 12px;
-    gap: 8px;
-    border-radius: 999px;
-    background: #fff;
-    min-height: 34px;
-  }
-
-  .suggestion__icon {
-    font-size: 12px;
-    width: 22px;
-    height: 22px;
-    display: grid;
-    place-items: center;
-    background: var(--bg-deep);
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .suggestion__text {
-    font-size: 11.5px;
-    line-height: 1.25;
-    font-weight: 500;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
   /* Thread adjustments */
   .chat__thread {
     padding: 16px 0 8px;
@@ -817,6 +809,13 @@
   .composer__input {
     font-size: max(14px, 16px);
     padding: 4px 6px;
+  }
+
+  .composer__phrases {
+    top: 4px;
+    left: 6px;
+    right: 6px;
+    font-size: max(14px, 16px);
   }
 
   .composer__send {
@@ -904,18 +903,5 @@
 
   .welcome__sub {
     font-size: 13px;
-  }
-
-  .suggestion {
-    padding: 9px 10px;
-    gap: 8px;
-  }
-
-  .suggestion__icon {
-    font-size: 14px;
-  }
-
-  .suggestion__text {
-    font-size: 11.5px;
   }
 }
