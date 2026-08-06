@@ -34,6 +34,9 @@
 .auth__card {
   position: relative;
   z-index: 1;
+  /* margin:auto centers the card in both axes and lets it scroll from the
+     top when the screen is too short (avoids top-clipping with flex center). */
+  margin: auto;
   width: min(100%, 420px);
   background: rgba(255, 253, 249, 0.86);
   backdrop-filter: blur(20px) saturate(1.1);
@@ -349,16 +352,26 @@
   color: var(--brand-deep);
 }
 
-/* ---------- Responsive ---------- */
+/* ---------- Responsive ----------
+   Keep the same centered card look on mobile/short screens as desktop.
+   The card uses margin:auto inside the scrollable .auth, so it centers
+   when it fits and still scrolls when the screen is too short. */
 @media (max-width: 720px) {
   .auth {
-    align-items: flex-start;
-    padding: var(--safe-top) 0 0;
+    align-items: center;
+    padding: 16px;
+    padding-top: calc(16px + var(--safe-top));
+    padding-bottom: calc(16px + var(--safe-bottom));
   }
 
   .auth__card {
-    border-radius: 26px 26px 0 0;
-    box-shadow: 0 -18px 50px -30px rgba(80, 60, 30, 0.3);
+    margin: auto;
+    width: min(100%, 420px);
+    border-radius: 28px;   /* same fully-rounded corners as desktop */
+    box-shadow:
+      0 2px 0 rgba(255, 255, 255, 0.6) inset,
+      0 30px 70px -30px rgba(80, 60, 30, 0.4);
+    padding: 28px 24px 22px;
   }
 
   .auth__title {
@@ -367,8 +380,14 @@
 }
 
 @media (max-width: 380px) {
+  .auth {
+    padding: 12px;
+    padding-top: calc(12px + var(--safe-top));
+    padding-bottom: calc(12px + var(--safe-bottom));
+  }
+
   .auth__card {
-    padding: 28px 20px 22px;
+    padding: 24px 18px 20px;
   }
 
   .auth__input {
@@ -378,5 +397,50 @@
 
   .auth__submit {
     height: 48px;
+  }
+}
+
+/* Very short landscape screens: cap the card so the submit button is
+   always reachable by scrolling. */
+@media (max-height: 560px) {
+  .auth__card {
+    padding: 22px 20px 18px;
+  }
+
+  .auth__card-head {
+    margin-bottom: 14px;
+  }
+
+  .auth__card-head .brand__mark {
+    margin-bottom: 8px;
+  }
+
+  .auth__title {
+    font-size: 22px;
+  }
+
+  .auth__sub {
+    font-size: 13.5px;
+  }
+
+  .auth__form {
+    gap: 10px;
+  }
+
+  .auth__modes {
+    margin-bottom: 14px;
+  }
+
+  .auth__input {
+    height: 44px;
+  }
+
+  .auth__submit {
+    height: 46px;
+    margin-top: 2px;
+  }
+
+  .auth__foot {
+    margin-top: 14px;
   }
 }
