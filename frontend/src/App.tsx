@@ -60,9 +60,13 @@ export default function App() {
     }
   }, []);
 
+  // Fetch documents only once auth has finished booting and a user is confirmed.
+  // Firing earlier would send an unauthenticated /documents request (no token yet),
+  // which the backend rejects with 401 "Token not found" — the race that broke deploys.
   useEffect(() => {
+    if (isBooting || !user) return;
     void refreshDocuments();
-  }, [refreshDocuments]);
+  }, [refreshDocuments, isBooting, user]);
 
   // If the selected document is deleted (or still processing), fall back to
   // the most recent processed document so the composer always has a target.
@@ -271,7 +275,7 @@ export default function App() {
 
       {loadError && (
         <div className="toast toast--error">
-          {loadError} — make sure the backend is running on :8000.
+          {loadError} — please try again.
         </div>
       )}
       {needsDocument && (
