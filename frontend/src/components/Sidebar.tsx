@@ -91,10 +91,11 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
           <button className="sidebar__rail-btn sidebar__rail-btn--docs" onClick={onExpand} aria-label="Documents" title="Documents — open sidebar">
             <FileIcon size={18} />
           </button>
+          <div className="sidebar__rail-spacer" />
+          {/* User above expand */}
           <button className="sidebar__rail-btn sidebar__rail-btn--user" onClick={onExpand} aria-label="Account" title="Account — open sidebar">
             <UserIcon size={18} />
           </button>
-          <div className="sidebar__rail-spacer" />
           {/* Expand pinned at the very bottom */}
           <button className="sidebar__rail-btn sidebar__rail-btn--expand" onClick={onExpand} aria-label="Expand sidebar" title="Expand sidebar">
             <ChevronIcon />
