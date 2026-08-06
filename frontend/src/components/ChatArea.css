@@ -48,6 +48,13 @@
   min-width: 0;
 }
 
+.chat__mobile-logo {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px var(--brand-glow));
+}
+
 .chat__mobile-title {
   font-family: var(--font-display);
   font-weight: 600;

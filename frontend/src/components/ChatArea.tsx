@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { ChatMessage, Document } from '../lib/types';
 import { ChatMessageView, DocumentChipAvatar, TypingDots } from './ChatMessage';
 import { Composer } from './Composer';
-import { LogoMark, MenuIcon, NewChatIcon, SparkIcon, UploadIcon } from './Icons';
+import { LogoMark, MenuIcon, SparkIcon, UploadIcon } from './Icons';
 
 interface ChatAreaProps {
   messages: ChatMessage[];
@@ -69,6 +69,7 @@ export function ChatArea({
           </button>
 
           <div className="chat__mobile-brand">
+            <span className="chat__mobile-logo"><LogoMark size={22} /></span>
             <span className="chat__mobile-title">
               {activeDocument ? activeDocument.filename : 'Knowledge'}
             </span>
@@ -77,25 +78,6 @@ export function ChatArea({
                 {activeDocument.status === 'processed' ? 'Ready' : activeDocument.status}
               </span>
             )}
-          </div>
-
-          <div className="chat__mobile-actions">
-            <button
-              className="chat__mobile-action"
-              onClick={onToggleSidebar}
-              aria-label="New chat"
-              title="New chat"
-            >
-              <NewChatIcon size={19} />
-            </button>
-            <button
-              className="chat__mobile-action"
-              onClick={onUpload}
-              aria-label="Upload document"
-              title="Upload document"
-            >
-              <UploadIcon size={19} />
-            </button>
           </div>
         </div>
       )}
