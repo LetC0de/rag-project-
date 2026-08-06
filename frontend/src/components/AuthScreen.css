@@ -54,64 +54,10 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* ---------- Orbiting glow ring ---------- */
-.auth__orbit {
-  position: absolute;
-  top: -46px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 132px;
-  height: 132px;
-  pointer-events: none;
-  opacity: 0.9;
-}
-
-.auth__ring-ring {
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.9), transparent 45%),
-    conic-gradient(from 180deg, var(--brand), var(--sun), var(--leaf), var(--brand));
-  filter: blur(1px) saturate(1.2);
-  animation: auth-spin 14s linear infinite;
-  mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
-}
-
-@keyframes auth-spin {
-  to { transform: rotate(360deg); }
-}
-
-.auth__orbit-leaf {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  font-size: 17px;
-  color: var(--brand);
-  filter: drop-shadow(0 2px 4px rgba(242, 84, 31, 0.3));
-}
-
-.auth__orbit-leaf--1 {
-  transform: translate(-50%, -50%) rotate(-22deg) translateX(-46px);
-  animation: auth-float 3.4s ease-in-out infinite;
-}
-
-.auth__orbit-leaf--2 {
-  transform: translate(-50%, -50%) rotate(150deg) translateX(-46px);
-  animation: auth-float 3.4s ease-in-out 1.7s infinite;
-}
-
-@keyframes auth-float {
-  0%, 100% { transform: translate(-50%, -50%) translateX(0) translateY(0) rotate(-8deg); }
-  50%      { transform: translate(-50%, -50%) translateX(4px) translateY(-5px) rotate(6deg); }
-}
-
 /* ---------- Head ---------- */
 .auth__card-head {
   text-align: center;
-  margin-bottom: 22px;
-  padding-top: 10px;
+  margin-bottom: 24px;
 }
 
 .auth__card-head .brand__mark {

@@ -89,12 +89,6 @@ export function AuthScreen() {
       </div>
 
       <div className="auth__card">
-        <div className="auth__orbit" aria-hidden="true">
-          <span className="auth__ring-ring" />
-          <span className="auth__orbit-leaf auth__orbit-leaf--1">❀</span>
-          <span className="auth__orbit-leaf auth__orbit-leaf--2">❀</span>
-        </div>
-
         <div className="auth__card-head">
           <span className="brand__mark"><LogoMark size={40} /></span>
           <h1 className="auth__title">
