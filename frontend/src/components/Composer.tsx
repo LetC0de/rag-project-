@@ -10,7 +10,7 @@ interface ComposerProps {
   isBusy: boolean;
   activeDocument?: Document;
   onClearDocument: () => void;
-  onPickDocument: () => void;
+  onPickDocument: (e?: React.MouseEvent) => void;
   disabled?: boolean;
 }
 
@@ -78,7 +78,7 @@ export function Composer({
       <div className="composer__bar">
         <button
           className="composer__attach"
-          onClick={onPickDocument}
+          onClick={(e) => onPickDocument(e)}
           disabled={disabled}
           aria-label="Attach a document"
           title={activeDocument ? 'Change document' : 'Add a document'}

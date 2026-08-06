@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Document } from '../lib/types';
 import { docColor, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
 import { UploadIcon, PlusIcon, XIcon } from './Icons';
@@ -14,14 +14,52 @@ interface DocumentPickerProps {
 }
 
 export function DocumentPicker({ open, anchor, documents, onSelect, onUpload, onClose, isMobile }: DocumentPickerProps) {
-  const [pos, setPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!open || isMobile || !anchor) return;
+  // Measure the real picker size and place it relative to the anchor.
+  // Runs after paint so the dimensions are accurate (no guessing).
+  useLayoutEffect(() => {
+    if (!open || isMobile || !ref.current) return;
+
+    const el = ref.current;
+    const PICKER_W = el.offsetWidth || 280;
+    const PICKER_H = el.offsetHeight;
+    const MARGIN = 10;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // No anchor (e.g. opened from a suggestion): center the picker.
+    if (!anchor) {
+      setPos({
+        left: Math.max(MARGIN, (vw - PICKER_W) / 2),
+        top: Math.max(MARGIN, (vh - PICKER_H) / 2),
+      });
+      return;
+    }
+
     const r = anchor.getBoundingClientRect();
-    setPos({ top: r.bottom + 8, left: Math.min(r.left, window.innerWidth - 300) });
-  }, [open, anchor, isMobile]);
+
+    // Horizontal: align to the anchor, clamped to the viewport.
+    let left = r.left;
+    if (left + PICKER_W > vw - MARGIN) left = vw - PICKER_W - MARGIN;
+    if (left < MARGIN) left = MARGIN;
+
+    // Vertical: prefer opening below the anchor; flip above when the
+    // picker wouldn't fit below (the + button is near the bottom edge).
+    let top = r.bottom + 8;
+    if (top + PICKER_H > vh - MARGIN) {
+      const above = r.top - PICKER_H - 8;
+      if (above >= MARGIN) {
+        top = above;
+      } else {
+        // Not enough room above either: clamp within the viewport.
+        top = Math.max(MARGIN, Math.min(vh - PICKER_H - MARGIN, r.bottom + 8));
+      }
+    }
+
+    setPos({ top, left });
+  }, [open, anchor, isMobile, documents]);
 
   useEffect(() => {
     if (!open) return;
@@ -45,7 +83,8 @@ export function DocumentPicker({ open, anchor, documents, onSelect, onUpload, on
   if (!open) return null;
 
   const ready = documents.filter((d) => d.status === 'processed');
-  const style = isMobile ? {} : { top: pos.top, left: pos.left };
+  // Desktop only: apply measured position once known. Mobile uses CSS sheet.
+  const style = isMobile ? {} : pos ? { top: pos.top, left: pos.left } : { opacity: 0 };
 
   const handleUpload = () => {
     onUpload();
