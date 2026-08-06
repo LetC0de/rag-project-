@@ -16,9 +16,9 @@
   height: var(--mobile-header-h);
   padding: 0 var(--mobile-pad);
   padding-left: calc(var(--mobile-pad) + var(--safe-left));
-  background: rgba(255, 253, 249, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(255, 253, 249, 0.85);
+  backdrop-filter: blur(18px) saturate(1.1);
+  -webkit-backdrop-filter: blur(18px) saturate(1.1);
   border-bottom: 1px solid var(--line);
   z-index: 5;
   flex-shrink: 0;
@@ -27,12 +27,20 @@
 .chat__hamburger {
   display: grid;
   place-items: center;
-  width: var(--mobile-touch);
-  height: var(--mobile-touch);
+  width: 40px;
+  height: 40px;
   border-radius: 12px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  box-shadow: var(--shadow-sm);
   color: var(--ink-soft);
-  transition: background var(--transition), color var(--transition);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
   flex-shrink: 0;
+}
+
+.chat__hamburger:active {
+  background: var(--line-soft);
+  border-color: var(--line);
 }
 
 .chat__hamburger:hover,
@@ -668,42 +676,62 @@
 
   /* Welcome screen adjustments */
   .chat__welcome {
-    padding: 16px var(--mobile-pad) 8px;
+    padding: 20px var(--mobile-pad) 10px;
   }
 
   .welcome__title {
     font-size: clamp(22px, 5vw, 32px);
-    margin: 16px 0 10px;
+    margin: 18px 0 10px;
+    letter-spacing: -0.4px;
   }
 
   .welcome__sub {
-    font-size: 14px;
+    font-size: 13.5px;
+    max-width: 360px;
+    line-height: 1.55;
   }
 
   .welcome__upload {
-    padding: 11px 18px;
-    font-size: 13.5px;
+    padding: 13px 20px;
+    font-size: 14px;
+    border-radius: var(--radius-pill);
   }
 
+  /* Follow-up chips — very small, compact cluster on mobile */
   .welcome__suggestions {
-    grid-template-columns: 1fr;
-    gap: 7px;
-    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 18px;
+    width: min(100%, 300px);
   }
 
   .suggestion {
-    padding: 10px 12px;
-    gap: 9px;
-    border-radius: calc(var(--radius-md) - 2px);
+    padding: 6px 12px;
+    gap: 8px;
+    border-radius: 999px;
+    background: #fff;
+    min-height: 34px;
   }
 
   .suggestion__icon {
-    font-size: 15px;
+    font-size: 12px;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    background: var(--bg-deep);
+    border-radius: 50%;
+    flex-shrink: 0;
   }
 
   .suggestion__text {
-    font-size: 12px;
-    line-height: 1.35;
+    font-size: 11.5px;
+    line-height: 1.25;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   /* Thread adjustments */
@@ -713,7 +741,7 @@
 
   .chat__thread-inner {
     padding: 0 var(--mobile-pad);
-    gap: 20px;
+    gap: 18px;
   }
 
   /* Message bubbles — more width on mobile */
@@ -722,20 +750,40 @@
   }
 
   .msg--user .msg__body {
-    max-width: 88%;
+    max-width: 86%;
+  }
+
+  .msg {
+    gap: 6px;
+  }
+
+  .msg__meta {
+    gap: 8px;
+  }
+
+  .msg__avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+  }
+
+  .msg__author {
+    font-size: 12.5px;
   }
 
   .msg__bubble {
     font-size: 14px;
-    padding: 10px 14px;
-    border-radius: 16px 16px 4px 16px;
+    padding: 9px 13px;
+    border-radius: 15px 15px 4px 15px;
+    line-height: 1.5;
   }
 
   .msg__answer {
-    font-size: 14px;
-    padding: 14px 16px;
+    font-size: 13.5px;
+    padding: 12px 14px;
     border-radius: 16px 16px 16px 4px;
     min-width: 0;
+    line-height: 1.65;
   }
 
   .msg__answer h1 { font-size: 19px; }
@@ -750,12 +798,20 @@
 
   /* Composer — full width, bottom-pinned feel */
   .chat__composer-wrap {
-    padding: 10px var(--mobile-pad) calc(8px + var(--safe-bottom));
+    padding: 10px var(--mobile-pad) calc(10px + var(--safe-bottom));
+    background: linear-gradient(180deg, transparent 0%, rgba(250, 246, 239, 0.7) 30%);
   }
 
   .composer {
-    border-radius: 18px;
-    padding: 10px 10px 8px;
+    border-radius: 20px;
+    padding: 9px 9px 7px;
+    border-color: var(--line);
+    box-shadow: 0 8px 24px -12px rgba(80, 60, 30, 0.35);
+  }
+
+  .composer--focused {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 4px var(--brand-glow), 0 8px 24px -12px rgba(80, 60, 30, 0.35);
   }
 
   .composer__input {
@@ -766,7 +822,7 @@
   .composer__send {
     width: 42px;
     height: 42px;
-    border-radius: 13px;
+    border-radius: 14px;
   }
 
   .composer__attach {
