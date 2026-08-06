@@ -9,6 +9,9 @@
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   animation: fade-in 0.2s ease both;
+  /* On short screens let the overlay scroll rather than clip the modal */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 @keyframes fade-in {
@@ -19,12 +22,18 @@
 .modal {
   width: 100%;
   max-width: 460px;
+  max-height: 100%;
   background: var(--surface);
   border: 1.5px solid var(--line);
   border-radius: 22px;
   box-shadow: var(--shadow-lg);
   padding: 24px;
   animation: pop 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* give the dropzone a stable box even if inner content scrolls */
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
 }
 
 .modal__head {

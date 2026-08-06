@@ -89,18 +89,22 @@
 }
 
 /* ---------- Welcome ---------- */
+/* NOTE: use flex + margin auto (not grid place-items:center) so the welcome
+   content scrolls properly when it's taller than the viewport on mobile.
+   The grid-centering variant clips the top and makes it unreachable. */
 .chat__welcome {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  display: grid;
-  place-items: center;
-  padding: 24px 20px 8px;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  padding: 24px 20px 12px;
 }
 
 .welcome__inner {
   max-width: 640px;
   width: 100%;
+  margin: auto;            /* centers vertically, but lets it scroll when tall */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -467,6 +471,7 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0; /* never let the keyboard squeeze the composer out of view */
 }
 
 .composer {
