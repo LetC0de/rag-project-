@@ -182,8 +182,11 @@ export default function App() {
   }, [messages, handleSend]);
 
   const openPicker = (anchor?: HTMLElement | null) => {
-    if (anchor) setPickerAnchor(anchor);
-    else setPickerAnchor(null);
+    // Anchor the picker to whatever triggered it. If none was passed
+    // (e.g. a follow-up suggestion click), fall back to the composer's
+    // "+" button so the menu opens in the same place as a + click.
+    const attachBtn = anchor ?? document.querySelector<HTMLElement>('.composer__attach');
+    setPickerAnchor(attachBtn);
     setPickerOpen(true);
   };
 
