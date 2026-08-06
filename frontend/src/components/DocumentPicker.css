@@ -26,6 +26,84 @@
   color: var(--ink-faint);
 }
 
+/* ---------- Sections ---------- */
+.picker__section {
+  padding-bottom: 6px;
+}
+
+/* Option 1 — upload a new document */
+.picker__upload-row {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  padding: 10px 10px;
+  border-radius: 12px;
+  text-align: left;
+  transition: background var(--transition);
+}
+
+.picker__upload-row:hover {
+  background: var(--line-soft);
+}
+
+.picker__upload-row:active {
+  background: var(--line);
+}
+
+.picker__upload-ico {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+  box-shadow: 0 4px 10px -3px var(--brand-glow);
+  flex-shrink: 0;
+}
+
+.picker__upload-meta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.picker__upload-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.picker__upload-sub {
+  font-size: 11.5px;
+  color: var(--ink-faint);
+}
+
+/* Option 2 — uploaded documents */
+.picker__subhead {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 8px 4px;
+}
+
+.picker__subhead-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+}
+
+.picker__count {
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  background: var(--line-soft);
+  border-radius: var(--radius-pill);
+  padding: 1px 7px;
+}
+
 .picker__list {
   display: flex;
   flex-direction: column;
@@ -99,29 +177,6 @@
 
 .picker__empty p { margin: 0 0 10px; }
 
-.picker__upload {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--brand), var(--brand-deep));
-  color: #fff;
-  font-weight: 600;
-  font-size: 12.5px;
-  box-shadow: 0 6px 14px -5px var(--brand-glow);
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-
-.picker__upload:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 18px -6px var(--brand-glow);
-}
-
-.picker__upload:active {
-  transform: translateY(0);
-}
-
 /* ============================================================
    Mobile (< 860px) — full-width bottom sheet
    ============================================================ */
@@ -158,6 +213,21 @@
 
   .picker__head {
     padding: 0 6px 8px;
+  }
+
+  .picker__upload-row {
+    padding: 11px 12px;
+    gap: 12px;
+    border-radius: 12px;
+  }
+
+  .picker__upload-ico {
+    width: 38px;
+    height: 38px;
+  }
+
+  .picker__upload-name {
+    font-size: 14px;
   }
 
   .picker__list {

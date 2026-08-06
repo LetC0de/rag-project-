@@ -588,17 +588,30 @@
   padding: 6px 4px 0;
 }
 
-.composer__hint {
-  font-size: 12px;
-  color: var(--ink-faint);
-  padding: 6px 10px;
-  border-radius: 9px;
-  transition: background var(--transition), color var(--transition);
+/* "+" attach button on the left of the composer */
+.composer__attach {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  color: var(--ink-soft);
+  transition: background var(--transition), color var(--transition), transform var(--transition);
 }
 
-.composer__hint:hover:not(:disabled) {
+.composer__attach:not(:disabled):hover {
   background: var(--line-soft);
-  color: var(--ink-soft);
+  color: var(--brand);
+  transform: translateY(-1px);
+}
+
+.composer__attach:not(:disabled):active {
+  transform: translateY(0) scale(0.94);
+}
+
+.composer__attach:disabled {
+  opacity: 0.45;
+  cursor: default;
 }
 
 .composer__send {
@@ -756,9 +769,9 @@
     border-radius: 13px;
   }
 
-  .composer__hint {
-    font-size: 11.5px;
-    padding: 6px 8px;
+  .composer__attach {
+    width: 40px;
+    height: 40px;
   }
 
   .doc-chip__name {

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Document } from '../lib/types';
 import { docColor, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { UploadIcon } from './Icons';
+import { UploadIcon, PlusIcon } from './Icons';
 
 interface DocumentPickerProps {
   open: boolean;
@@ -47,38 +47,61 @@ export function DocumentPicker({ open, anchor, documents, onSelect, onUpload, on
   const ready = documents.filter((d) => d.status === 'processed');
   const style = isMobile ? {} : { top: pos.top, left: pos.left };
 
+  const handleUpload = () => {
+    onUpload();
+    onClose();
+  };
+
   return (
-    <div className="picker" ref={ref} style={style} role="listbox" aria-label="Choose a document">
+    <div className="picker" ref={ref} style={style} role="menu" aria-label="Add a document">
       <div className="picker__head">
-        <span className="picker__title">Chat with a document</span>
+        <span className="picker__title">Add a document</span>
       </div>
-      <div className="picker__list">
-        {ready.length === 0 && (
+
+      {/* Option 1 — upload a new PDF */}
+      <div className="picker__section">
+        <button className="picker__upload-row" onClick={handleUpload}>
+          <span className="picker__upload-ico"><PlusIcon size={17} /></span>
+          <span className="picker__upload-meta">
+            <span className="picker__upload-name">Upload new</span>
+            <span className="picker__upload-sub">Add a PDF to chat</span>
+          </span>
+        </button>
+      </div>
+
+      {/* Option 2 — already uploaded documents */}
+      <div className="picker__section">
+        <div className="picker__subhead">
+          <span className="picker__subhead-label">Uploaded</span>
+          {ready.length > 0 && <span className="picker__count">{ready.length}</span>}
+        </div>
+
+        {ready.length === 0 ? (
           <div className="picker__empty">
-            <p>No ready documents.</p>
-            <button className="picker__upload" onClick={() => { onUpload(); onClose(); }}>
-              <UploadIcon size={14} /> Upload a PDF
-            </button>
+            <p>No documents uploaded yet.</p>
+          </div>
+        ) : (
+          <div className="picker__list">
+            {ready.map((doc) => {
+              const color = docColor(doc.id);
+              return (
+                <button
+                  key={doc.id}
+                  className="picker__item"
+                  onClick={() => { onSelect(doc.id); onClose(); }}
+                >
+                  <span className="picker__avatar" style={{ background: color.soft, color: color.ink }}>
+                    {initialsFromFilename(doc.filename)}
+                  </span>
+                  <span className="picker__meta">
+                    <span className="picker__name">{doc.filename}</span>
+                    <span className="picker__sub"><span className="status-dot status-dot--processed" /> {STATUS_LABEL.processed}</span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
         )}
-        {ready.map((doc) => {
-          const color = docColor(doc.id);
-          return (
-            <button
-              key={doc.id}
-              className="picker__item"
-              onClick={() => { onSelect(doc.id); onClose(); }}
-            >
-              <span className="picker__avatar" style={{ background: color.soft, color: color.ink }}>
-                {initialsFromFilename(doc.filename)}
-              </span>
-              <span className="picker__meta">
-                <span className="picker__name">{doc.filename}</span>
-                <span className="picker__sub"><span className="status-dot status-dot--processed" /> {STATUS_LABEL.processed}</span>
-              </span>
-            </button>
-          );
-        })}
       </div>
     </div>
   );

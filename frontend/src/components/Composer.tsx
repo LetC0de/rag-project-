@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Document } from '../lib/types';
-import { SendIcon, StopIcon, XIcon } from './Icons';
+import { SendIcon, StopIcon, XIcon, PlusIcon } from './Icons';
 
 interface ComposerProps {
   value: string;
@@ -76,8 +76,14 @@ export function Composer({
       />
 
       <div className="composer__bar">
-        <button className="composer__hint" onClick={onPickDocument} disabled={disabled}>
-          {activeDocument ? 'Change document' : 'Select a document to begin'}
+        <button
+          className="composer__attach"
+          onClick={onPickDocument}
+          disabled={disabled}
+          aria-label="Attach a document"
+          title={activeDocument ? 'Change document' : 'Add a document'}
+        >
+          <PlusIcon size={20} />
         </button>
 
         {isBusy ? (
