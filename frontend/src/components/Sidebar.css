@@ -41,6 +41,133 @@
   padding: 6px;
 }
 
+/* ---------- Collapsed icon rail (desktop) ---------- */
+.sidebar__rail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+  margin-top: 4px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.sidebar__rail-btn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: var(--ink-soft);
+  transition: background var(--transition), color var(--transition), transform var(--transition), box-shadow var(--transition), filter var(--transition);
+}
+
+/* Tooltip label that fades in beside each icon on hover */
+.sidebar__rail-btn::after {
+  content: attr(title);
+  position: absolute;
+  left: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  white-space: nowrap;
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-pop);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 50;
+}
+
+.sidebar__rail-btn:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.sidebar__rail-btn:active {
+  transform: translateY(0) scale(0.92);
+}
+
+/* New chat — vibrant coral gradient */
+.sidebar__rail-btn--chat {
+  background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+  color: #fff;
+  box-shadow: 0 6px 14px -5px var(--brand-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.sidebar__rail-btn--chat:hover {
+  color: #fff;
+  transform: translateY(-1px) scale(1.06);
+  box-shadow: 0 8px 18px -5px var(--brand-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  filter: saturate(1.1);
+}
+
+/* History — berry pink */
+.sidebar__rail-btn--history {
+  background: linear-gradient(135deg, var(--berry), #c13a72);
+  color: #fff;
+  box-shadow: 0 6px 14px -5px rgba(227, 79, 143, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.sidebar__rail-btn--history:hover {
+  color: #fff;
+  transform: translateY(-1px) scale(1.06);
+  box-shadow: 0 8px 18px -5px rgba(227, 79, 143, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Documents — warm marigold */
+.sidebar__rail-btn--docs {
+  background: linear-gradient(135deg, var(--sun), #e08b00);
+  color: #fff;
+  box-shadow: 0 6px 14px -5px rgba(244, 166, 42, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.sidebar__rail-btn--docs:hover {
+  color: #fff;
+  transform: translateY(-1px) scale(1.06);
+  box-shadow: 0 8px 18px -5px rgba(244, 166, 42, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Expand — colorful gradient pinned at the bottom */
+.sidebar__rail-btn--expand {
+  background: linear-gradient(135deg, var(--leaf), #1f8a52);
+  color: #fff;
+  box-shadow: 0 6px 14px -5px rgba(47, 174, 107, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.sidebar__rail-btn--expand svg {
+  transform: rotate(-90deg);
+}
+
+.sidebar__rail-btn--expand:hover {
+  color: #fff;
+  transform: translateY(-1px) scale(1.06);
+  box-shadow: 0 8px 18px -5px rgba(47, 174, 107, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* User — sky blue */
+.sidebar__rail-btn--user {
+  background: linear-gradient(135deg, var(--sky), #2a7fbf);
+  color: #fff;
+  box-shadow: 0 6px 14px -5px rgba(74, 163, 232, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.sidebar__rail-btn--user:hover {
+  color: #fff;
+  transform: translateY(-1px) scale(1.06);
+  box-shadow: 0 8px 18px -5px rgba(74, 163, 232, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.sidebar__rail-spacer {
+  flex: 1;
+}
+
 .sidebar__head {
   display: flex;
   align-items: center;

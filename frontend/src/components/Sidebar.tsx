@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Document, User } from '../lib/types';
 import { docColor, formatDate, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { LogoMark, NewChatIcon, TrashIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon } from './Icons';
+import { LogoMark, NewChatIcon, TrashIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon, FileIcon, UploadIcon, HistoryIcon } from './Icons';
 
 interface SidebarProps {
   documents: Document[];
@@ -79,16 +79,27 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
         )}
       </div>
 
-      {/* Floating open button — desktop, shown only when the sidebar is collapsed */}
+      {/* Collapsed icon rail — desktop only: colorful, informative shortcuts */}
       {!isMobile && collapsed && (
-        <button
-          className="sidebar__expand"
-          onClick={onExpand}
-          aria-label="Expand sidebar"
-          title="Expand sidebar"
-        >
-          <ChevronIcon />
-        </button>
+        <div className="sidebar__rail">
+          <button className="sidebar__rail-btn sidebar__rail-btn--chat" onClick={onExpand} aria-label="New chat" title="New chat — open sidebar">
+            <NewChatIcon size={18} />
+          </button>
+          <button className="sidebar__rail-btn sidebar__rail-btn--history" onClick={onExpand} aria-label="History" title="History — open sidebar">
+            <HistoryIcon size={18} />
+          </button>
+          <button className="sidebar__rail-btn sidebar__rail-btn--docs" onClick={onExpand} aria-label="Documents" title="Documents — open sidebar">
+            <FileIcon size={18} />
+          </button>
+          <button className="sidebar__rail-btn sidebar__rail-btn--user" onClick={onExpand} aria-label="Account" title="Account — open sidebar">
+            <UserIcon size={18} />
+          </button>
+          <div className="sidebar__rail-spacer" />
+          {/* Expand pinned at the very bottom */}
+          <button className="sidebar__rail-btn sidebar__rail-btn--expand" onClick={onExpand} aria-label="Expand sidebar" title="Expand sidebar">
+            <ChevronIcon />
+          </button>
+        </div>
       )}
 
       <div className="sidebar__body">
