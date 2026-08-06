@@ -96,23 +96,22 @@ export function AuthScreen() {
           </h1>
           <p className="auth__sub">
             {mode === 'login'
-              ? 'Sign in to keep chatting with your documents.'
+              ? 'Log in to keep chatting with your documents.'
               : 'Sign up to start chatting with your documents.'}
           </p>
         </div>
 
         <div className="auth__modes" role="tablist">
-          <span className="auth__thumb" aria-hidden="true" />
           <button
-            className={`auth__mode auth__mode--login ${mode === 'login' ? 'auth__mode--active' : ''}`}
+            className={`auth__mode ${mode === 'login' ? 'auth__mode--active' : ''}`}
             onClick={() => setMode('login')}
             type="button"
           >
             <SparkIcon size={13} />
-            <span>Sign in</span>
+            <span>Log in</span>
           </button>
           <button
-            className={`auth__mode auth__mode--register ${mode === 'register' ? 'auth__mode--active' : ''}`}
+            className={`auth__mode ${mode === 'register' ? 'auth__mode--active' : ''}`}
             onClick={() => setMode('register')}
             type="button"
           >
@@ -223,10 +222,10 @@ export function AuthScreen() {
             )}
             {busy
               ? mode === 'login'
-                ? 'Signing in…'
+                ? 'Logging in…'
                 : 'Creating account…'
               : mode === 'login'
-              ? 'Sign in'
+              ? 'Log in'
               : 'Create account'}
           </button>
         </form>
@@ -243,7 +242,7 @@ export function AuthScreen() {
             <>
               Already have an account?{' '}
               <button className="auth__link" type="button" onClick={() => setMode('login')}>
-                Sign in
+                Log in
               </button>
             </>
           )}
