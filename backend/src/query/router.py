@@ -12,7 +12,6 @@ chat_router = APIRouter(
     tags=["Chat"]
 )
 
-
 @chat_router.post("/query")
 async def query(
     request: QueryRequestSchema,
