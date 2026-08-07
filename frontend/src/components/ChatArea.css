@@ -900,13 +900,17 @@
   }
 
   /* Follow-up suggestion chips — stacked one per line so each of the four
-     reads as a clear call-to-action on mobile. The grid shrinks to a
-     centered, compact column instead of spanning the full width. */
+     reads as a clear call-to-action on mobile. The column is inset on both
+     sides (right and left) so it never runs flush to the screen edges,
+     keeping even breathing room between the chips and the display edge. */
   .welcome__suggestions {
     grid-template-columns: 1fr;
     gap: 9px;
     margin-top: 22px;
-    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    max-width: calc(100% - 48px); /* inset 24px from both screen edges */
   }
 
   .suggestion {
