@@ -111,8 +111,15 @@ export function ChatMessageView({ message, documentName, isLast, onCopy, onRegen
           <span className="msg__sources-label">Sources</span>
           <div className="msg__sources-list">
             {sources.map((s, i) => (
-              <span className="msg__source-chip" key={`${s.filename}-${s.page}-${i}`}>
-                {s.page != null ? `p. ${s.page}` : s.filename}
+              <span className="msg__source-chip" key={`${s.filename}-${s.page}-${i}`} data-index={i}>
+                {s.page != null ? (
+                  <>
+                    <span className="msg__source-ref">pg</span>
+                    <span className="msg__source-num">{s.page}</span>
+                  </>
+                ) : (
+                  <span className="msg__source-file">{s.filename}</span>
+                )}
               </span>
             ))}
           </div>

@@ -476,21 +476,74 @@
 }
 
 .msg__source-chip {
+  --chip-accent: var(--brand);
+
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--brand-deep);
+  gap: 7px;
+  height: 30px;
+  padding: 0 12px 0 9px;
   background: #fff;
-  border: 1.5px solid var(--line-soft);
-  border-radius: var(--radius-pill);
-  padding: 4px 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px 12px 12px 9px;
   box-shadow: var(--shadow-sm);
   animation: source-pop 220ms cubic-bezier(0.33, 1, 0.68, 1) backwards;
+  overflow: hidden;
 }
 
-/* Staggered entrance so chips read as a sequence, not a list dump. */
+/* Left accent spine — tints each tag with a color from the garden palette. */
+.msg__source-chip::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--chip-accent);
+}
+
+/* Cycle accent hues by tag order (mirrors the palette in palette.ts). */
+.msg__source-chip[data-index='0'] { --chip-accent: var(--brand); }
+.msg__source-chip[data-index='1'] { --chip-accent: var(--sky); }
+.msg__source-chip[data-index='2'] { --chip-accent: var(--leaf); }
+.msg__source-chip[data-index='3'] { --chip-accent: var(--sun); }
+.msg__source-chip[data-index='4'] { --chip-accent: var(--berry); }
+.msg__source-chip[data-index='5'] { --chip-accent: var(--grape); }
+
+/* Tiny "pg" eyebrow */
+.msg__source-ref {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  line-height: 1;
+  padding-left: 2px;
+}
+
+/* Oversized serif numeral — editorial, not clunky */
+.msg__source-num {
+  font-family: var(--font-display);
+  font-size: 16.5px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--chip-accent);
+  margin-top: 1px;
+}
+
+/* Fallback when a page number is absent (rare) */
+.msg__source-file {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Staggered entrance so tags read as a sequence, not a list dump. */
 .msg__source-chip:nth-child(1) { animation-delay: 0ms; }
 .msg__source-chip:nth-child(2) { animation-delay: 40ms; }
 .msg__source-chip:nth-child(3) { animation-delay: 80ms; }
@@ -856,8 +909,12 @@
   }
 
   .msg__source-chip {
-    font-size: 12px;
-    padding: 3px 10px;
+    height: 28px;
+    padding: 0 11px 0 8px;
+  }
+
+  .msg__source-num {
+    font-size: 15px;
   }
 
   .msg__answer h1 { font-size: 19px; }
