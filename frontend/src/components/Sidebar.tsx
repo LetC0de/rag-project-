@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Document, User } from '../lib/types';
 import { docColor, formatDate, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { LogoMark, NewChatIcon, TrashIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon, FileIcon, UploadIcon, HistoryIcon } from './Icons';
+import { LogoMark, NewChatIcon, TrashIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon, FileIcon, HistoryIcon } from './Icons';
 
 interface SidebarProps {
   documents: Document[];
