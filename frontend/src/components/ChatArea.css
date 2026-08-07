@@ -870,18 +870,49 @@
     gap: 7px;
   }
 
-  .chat__mobile-title {
-    font-size: 16px;
-    letter-spacing: -0.2px;
+  /* Tighten the lockup so the heavy wordmark reads as a single unit */
+  .chat__mobile-brand {
+    gap: 8px;
+    padding-bottom: 7px;
   }
 
-  /* "Assistant" in warm orange — a clean accent to the black "Quill". */
+  .chat__mobile-title {
+    font-size: 19px;
+    font-weight: 900;
+    letter-spacing: -0.7px;
+    line-height: 1;
+    color: var(--ink);
+    font-variation-settings: 'opsz' 80;
+  }
+
+  /* "Assistant" — elegant italic, a refined descender beside the heavy lock */
   .chat__mobile-accent {
     font-style: italic;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.2px;
+    font-variation-settings: 'opsz' 30;
+    color: var(--ink);
+    align-self: flex-end;
+  }
+
+  /* Hand-tuned marker underline — a single, clean editorial stroke */
+  .chat__mobile-brand::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 3px;
+    border-radius: 2px;
     background: linear-gradient(90deg, var(--brand), var(--sun));
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+    opacity: 0.85;
+    transform: skewX(-12deg) scaleX(0.55);
+    transform-origin: left center;
+  }
+
+  .chat__mobile-logo {
+    transform: translateY(-1px);
   }
 
   /* Welcome screen adjustments — content starts from the top on mobile */

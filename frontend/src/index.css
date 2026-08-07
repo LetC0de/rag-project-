@@ -4,7 +4,7 @@
    Fonts: Fraunces (display serif) + Outfit (humanist sans)
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500;1,9..144,600;1,9..144,700&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* Palette — warm cream base, vibrant sunlit accents */
