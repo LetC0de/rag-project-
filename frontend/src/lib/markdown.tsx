@@ -4,13 +4,26 @@ import { Fragment, type ReactNode } from 'react';
 // Handles the subset an LLM tends to emit: headings, bold, inline code,
 // code fences, bullet/numbered lists, blockquotes, and links.
 
-const INLINE = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\))/g;
+const INLINE = /(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\([^)]+\)|\[Page\s*\d+(?:\]\[Page\s*\d+)*\])/g;
 
 function renderInline(text: string, key: number): ReactNode {
   const parts = text.split(INLINE).filter((p) => p.length > 0);
   return (
     <Fragment key={key}>
       {parts.map((part, i) => {
+        // Inline page citation(s), e.g. "[Page 3]" or "[Page 3][Page 7]".
+        const cite = part.match(/^\[Page\s*(\d+)\](?:\[Page\s*(\d+)\])*$/);
+        if (cite) {
+          return (
+            <Fragment key={i}>
+              {[...part.matchAll(/\[Page\s*(\d+)\]/g)].map((m) => (
+                <sup key={m.index} className="cite">
+                  {m[1]}
+                </sup>
+              ))}
+            </Fragment>
+          );
+        }
         if (part.startsWith('**') && part.endsWith('**')) {
           return <strong key={i}>{part.slice(2, -2)}</strong>;
         }

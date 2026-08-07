@@ -42,8 +42,10 @@ async def ask_question(request: QueryRequestSchema, db: Session, user: UserModel
         }
 
     # Step 2 - Build Context
+    # Tag each chunk with its source page so the model can cite it inline.
     context = "\n\n".join(
-        [doc.page_content for doc in docs]
+        f"[Page {doc.metadata.get('page', '?')}] {doc.page_content}"
+        for doc in docs
     )
 
     # Step 3 - Prompt

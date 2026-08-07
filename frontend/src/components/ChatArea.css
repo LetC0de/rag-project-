@@ -383,6 +383,30 @@
   padding: 1px 6px;
   color: var(--brand-deep);
 }
+
+/* Inline page citation sentinels like [Page 3] — rendered as coral badges. */
+.msg__answer .cite {
+  font-family: var(--font-display);
+  font-size: 0.72em;
+  line-height: 1;
+  font-weight: 700;
+  color: var(--brand-deep);
+  background: var(--brand-glow);
+  border: 1px solid rgba(255, 107, 61, 0.28);
+  border-radius: 6px;
+  padding: 1px 4px;
+  margin: 0 1px;
+  vertical-align: baseline;
+  position: relative;
+  top: -0.35em;
+  white-space: nowrap;
+  user-select: all;
+}
+
+/* Two citations sitting together gain a touch of breathing room. */
+.msg__answer .cite + .cite {
+  margin-left: 3px;
+}
 .msg__answer pre {
   background: #2b2620;
   color: #f5efe6;
@@ -925,6 +949,11 @@
     padding: 12px 14px;
     border-radius: 10px;
     font-size: 12px;
+  }
+
+  .msg__answer .cite {
+    font-size: 0.7em;
+    padding: 0 3px;
   }
 
   /* Composer — full width, bottom-pinned feel */
