@@ -74,9 +74,31 @@
 }
 
 .chat__mobile-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   font-size: 11px;
-  color: var(--ink-faint);
+  font-weight: 600;
+  color: var(--leaf);
   white-space: nowrap;
+  letter-spacing: 0.2px;
+}
+
+/* A small live status dot that breathes a green glow */
+.chat__mobile-sub::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--leaf);
+  box-shadow: 0 0 0 0 var(--leaf);
+  animation: live-pulse 1.8s ease-out infinite;
+}
+
+@keyframes live-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(47, 174, 107, 0.55); }
+  70%  { box-shadow: 0 0 0 6px rgba(47, 174, 107, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(47, 174, 107, 0); }
 }
 
 .chat__mobile-actions {
@@ -861,19 +883,17 @@
   }
 
   /* Center the brand lockup (logo + "Quill Assistant") in the menu bar.
-     The hamburger stays pinned to the left; the title reads dead-center. */
+     The hamburger stays pinned to the left; the title reads dead-center.
+     max-width + overflow keeps a long filename on a single clean line
+     instead of wrapping into broken text. */
   .chat__mobile-brand {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    gap: 7px;
-  }
-
-  /* Tighten the lockup so the heavy wordmark reads as a single unit */
-  .chat__mobile-brand {
     gap: 8px;
     padding-bottom: 7px;
+    max-width: 60%;
   }
 
   .chat__mobile-title {
@@ -883,6 +903,10 @@
     line-height: 1;
     color: var(--ink);
     font-variation-settings: 'opsz' 80;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
 
   /* "Assistant" — elegant italic, a refined descender beside the heavy lock */
@@ -896,7 +920,8 @@
     align-self: flex-end;
   }
 
-  /* Hand-tuned marker underline — a single, clean editorial stroke */
+  /* Hand-tuned marker underline — a single, clean editorial stroke.
+     Anchored to text width so it stays tidy under a long filename too. */
   .chat__mobile-brand::after {
     content: "";
     position: absolute;
@@ -909,6 +934,7 @@
     opacity: 0.85;
     transform: skewX(-12deg) scaleX(0.55);
     transform-origin: left center;
+    pointer-events: none;
   }
 
   .chat__mobile-logo {
