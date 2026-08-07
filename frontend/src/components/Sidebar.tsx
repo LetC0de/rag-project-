@@ -50,7 +50,7 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
         <button className="brand" onClick={onNewChat} aria-label="Quill home">
           <span className="brand__mark"><LogoMark size={30} /></span>
           <span className="brand__text">
-            <span className="brand__name">Quill</span>
+            <span className="brand__name">Quill Assistant</span>
             <span className="brand__tag">chat with your docs</span>
           </span>
         </button>

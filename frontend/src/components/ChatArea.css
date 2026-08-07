@@ -857,6 +857,31 @@
   /* Show mobile header */
   .chat__mobile-header {
     display: flex;
+    position: relative;
+  }
+
+  /* Center the brand lockup (logo + "Quill Assistant") in the menu bar.
+     The hamburger stays pinned to the left; the title reads dead-center. */
+  .chat__mobile-brand {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    gap: 7px;
+  }
+
+  .chat__mobile-title {
+    font-size: 16px;
+    letter-spacing: -0.2px;
+  }
+
+  /* "Assistant" in warm orange — a clean accent to the black "Quill". */
+  .chat__mobile-accent {
+    font-style: italic;
+    background: linear-gradient(90deg, var(--brand), var(--sun));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   /* Welcome screen adjustments — content starts from the top on mobile */

@@ -80,7 +80,11 @@ export function ChatArea({
           <div className="chat__mobile-brand">
             <span className="chat__mobile-logo"><LogoMark size={22} /></span>
             <span className="chat__mobile-title">
-              {activeDocument ? activeDocument.filename : 'Quill'}
+              {activeDocument ? (
+                activeDocument.filename
+              ) : (
+                <>Quill<span className="chat__mobile-accent">Assistant</span></>
+              )}
             </span>
             {activeDocument && (
               <span className="chat__mobile-sub">
