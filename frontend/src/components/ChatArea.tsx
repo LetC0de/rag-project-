@@ -127,7 +127,7 @@ export function ChatArea({
               {activeDocument ? (
                 <>Ask anything about <em>"{activeDocument.filename}"</em></>
               ) : (
-                <>Your <em>enterprise document assistant</em></>
+                <>Your <em>document assistant</em></>
               )}
             </h1>
             <p className="welcome__sub">
