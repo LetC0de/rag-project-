@@ -203,6 +203,20 @@ export default function App() {
     void handleSend(lastUser.content);
   }, [messages, handleSend]);
 
+  // Retry a failed answer: drop the failed assistant bubble and re-send the
+  // user question that preceded it, keeping the rest of the thread intact.
+  const handleRetry = useCallback(
+    (failedId: string) => {
+      const idx = messages.findIndex((m) => m.id === failedId);
+      if (idx < 0) return;
+      const question = [...messages.slice(0, idx)].reverse().find((m) => m.role === 'user');
+      if (!question) return;
+      setMessages((prev) => prev.filter((m) => m.id !== failedId));
+      void handleSend(question.content);
+    },
+    [messages, handleSend]
+  );
+
   const openPicker = (anchor?: HTMLElement | null) => {
     // Anchor the picker to whatever triggered it. If none was passed
     // (e.g. a follow-up suggestion click), fall back to the composer's
@@ -287,6 +301,7 @@ export default function App() {
         }}
         onUpload={() => setUploadOpen(true)}
         onStreamingDone={handleStreamingDone}
+        onRetry={handleRetry}
         isMobile={isMobile}
         onToggleSidebar={toggleSidebar}
       />

@@ -10,10 +10,11 @@ interface ChatMessageProps {
   isLast: boolean;
   onCopy: (content: string) => void;
   onRegenerate: () => void;
+  onRetry?: () => void;
   onStreamingDone?: () => void;
 }
 
-export function ChatMessageView({ message, documentName, isLast, onCopy, onRegenerate, onStreamingDone }: ChatMessageProps) {
+export function ChatMessageView({ message, documentName, isLast, onCopy, onRegenerate, onRetry, onStreamingDone }: ChatMessageProps) {
   const sources = message.sources ?? [];
   const [revealed, setRevealed] = useState(message.content.length);
   const [copied, setCopied] = useState(false);
@@ -91,17 +92,28 @@ export function ChatMessageView({ message, documentName, isLast, onCopy, onRegen
         )}
       </div>
 
-      {!isUser && fullShown && !message.streaming && !message.error && (
+      {!isUser && fullShown && !message.streaming && (
         <div className="msg__actions">
-          <button className="msg__action" onClick={handleCopy}>
-            {copied ? <CheckIcon size={13} /> : <CopyIcon size={13} />}
-            {copied ? 'Copied' : 'Copy'}
-          </button>
-          {isLast && (
-            <button className="msg__action" onClick={onRegenerate}>
-              <RegenerateIcon size={13} />
-              Regenerate
+          {!message.error && (
+            <button className="msg__action" onClick={handleCopy}>
+              {copied ? <CheckIcon size={13} /> : <CopyIcon size={13} />}
+              {copied ? 'Copied' : 'Copy'}
             </button>
+          )}
+          {message.error ? (
+            onRetry && (
+              <button className="msg__action msg__action--retry" onClick={onRetry}>
+                <RegenerateIcon size={13} />
+                Retry
+              </button>
+            )
+          ) : (
+            isLast && (
+              <button className="msg__action" onClick={onRegenerate}>
+                <RegenerateIcon size={13} />
+                Regenerate
+              </button>
+            )
           )}
         </div>
       )}

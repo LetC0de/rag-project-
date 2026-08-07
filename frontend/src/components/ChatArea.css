@@ -517,6 +517,18 @@
   color: var(--ink);
 }
 
+/* Retry — a clear, actionable redo button on a failed answer */
+.msg__action--retry {
+  color: var(--danger);
+  background: #fdecec;
+  font-weight: 600;
+}
+
+.msg__action--retry:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
 /* ---------- Source citations ---------- */
 .msg__sources {
   display: flex;

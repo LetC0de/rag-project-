@@ -18,6 +18,7 @@ interface ChatAreaProps {
   onSuggestion: (text: string) => void;
   onUpload: () => void;
   onStreamingDone: (messageId: string) => void;
+  onRetry: (messageId: string) => void;
   isMobile: boolean;
   onToggleSidebar: () => void;
 }
@@ -52,6 +53,7 @@ export function ChatArea({
   onSuggestion,
   onUpload,
   onStreamingDone,
+  onRetry,
   isMobile,
   onToggleSidebar,
 }: ChatAreaProps) {
@@ -106,6 +108,7 @@ export function ChatArea({
                 isLast={i === messages.length - 1}
                 onCopy={(content) => navigator.clipboard?.writeText(content)}
                 onRegenerate={onRegenerate}
+                onRetry={() => onRetry(m.id)}
                 onStreamingDone={() => onStreamingDone(m.id)}
               />
             ))}
