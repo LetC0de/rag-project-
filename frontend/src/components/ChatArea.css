@@ -682,6 +682,9 @@
   border-radius: var(--radius-pill);
   padding: 4px 7px 4px 8px;
   max-width: 100%;
+  /* Children (esp. the name) must be allowed to shrink, or a long filename
+     pushes the chip past the composer's edge. */
+  min-width: 0;
 }
 
 .doc-chip__badge {
@@ -702,6 +705,10 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* Let the name share the chip's remaining width and truncate there,
+     instead of overflowing the composer when the filename is long. */
+  flex: 1;
+  min-width: 0;
 }
 
 .doc-chip__x {
