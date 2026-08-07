@@ -452,6 +452,63 @@
   color: var(--ink);
 }
 
+/* ---------- Source citations ---------- */
+.msg__sources {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.msg__sources-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding: 0 4px;
+}
+
+.msg__sources-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.msg__source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--brand-deep);
+  background: #fff;
+  border: 1.5px solid var(--line-soft);
+  border-radius: var(--radius-pill);
+  padding: 4px 11px;
+  box-shadow: var(--shadow-sm);
+  animation: source-pop 220ms cubic-bezier(0.33, 1, 0.68, 1) backwards;
+}
+
+/* Staggered entrance so chips read as a sequence, not a list dump. */
+.msg__source-chip:nth-child(1) { animation-delay: 0ms; }
+.msg__source-chip:nth-child(2) { animation-delay: 40ms; }
+.msg__source-chip:nth-child(3) { animation-delay: 80ms; }
+.msg__source-chip:nth-child(4) { animation-delay: 120ms; }
+.msg__source-chip:nth-child(5) { animation-delay: 160ms; }
+.msg__source-chip:nth-child(6) { animation-delay: 200ms; }
+
+@keyframes source-pop {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 /* ---------- Typing indicator ---------- */
 .msg--thinking .msg__body {
   background: #fff;
@@ -792,7 +849,15 @@
     padding: 12px 14px;
     border-radius: 16px 16px 16px 4px;
     min-width: 0;
-    line-height: 1.65;
+  }
+
+  .msg__sources {
+    margin-top: 8px;
+  }
+
+  .msg__source-chip {
+    font-size: 12px;
+    padding: 3px 10px;
   }
 
   .msg__answer h1 { font-size: 19px; }

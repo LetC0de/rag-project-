@@ -37,6 +37,13 @@ export interface QueryResponse {
   document_id: number;
   question: string;
   answer: string;
+  sources?: SourceRef[];
+}
+
+// A single page the retriever used to answer — shown as a citation chip.
+export interface SourceRef {
+  page?: number;
+  filename?: string;
 }
 
 export type MessageRole = 'user' | 'assistant';
@@ -48,4 +55,5 @@ export interface ChatMessage {
   documentId?: number;
   streaming?: boolean;
   error?: boolean;
+  sources?: SourceRef[];
 }

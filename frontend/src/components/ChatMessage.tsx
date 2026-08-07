@@ -14,6 +14,7 @@ interface ChatMessageProps {
 }
 
 export function ChatMessageView({ message, documentName, isLast, onCopy, onRegenerate, onStreamingDone }: ChatMessageProps) {
+  const sources = message.sources ?? [];
   const [revealed, setRevealed] = useState(message.content.length);
   const [copied, setCopied] = useState(false);
   const frame = useRef<number | null>(null);
@@ -102,6 +103,19 @@ export function ChatMessageView({ message, documentName, isLast, onCopy, onRegen
               Regenerate
             </button>
           )}
+        </div>
+      )}
+
+      {sources.length > 0 && (
+        <div className="msg__sources" aria-label="Sources">
+          <span className="msg__sources-label">Sources</span>
+          <div className="msg__sources-list">
+            {sources.map((s, i) => (
+              <span className="msg__source-chip" key={`${s.filename}-${s.page}-${i}`}>
+                {s.page != null ? `p. ${s.page}` : s.filename}
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </div>

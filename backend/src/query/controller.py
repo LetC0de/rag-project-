@@ -57,9 +57,26 @@ async def ask_question(request: QueryRequestSchema, db: Session, user: UserModel
     # Step 4 - LLM
     response = llm.invoke(final_prompt)
 
+    # Step 4.5 - Collect source citations from the retrieved chunks.
+    # Dedup by (filename, page) — a single page can contribute multiple chunks.
+    # Only page + filename are exposed; the temp server file path in
+    # metadata["source"] is intentionally omitted.
+    sources = []
+    seen = set()
+    for doc in docs:
+        meta = doc.metadata
+        key = (meta.get("filename"), meta.get("page"))
+        if key in seen or key == (None, None):
+            continue
+        seen.add(key)
+        sources.append(
+            {"page": meta.get("page"), "filename": meta.get("filename")}
+        )
+
     # Step 5 - Return
     return {
         "document_id": request.document_id,
         "question": request.question,
-        "answer": response.content
+        "answer": response.content,
+        "sources": sources
     }

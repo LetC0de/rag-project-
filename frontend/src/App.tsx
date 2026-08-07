@@ -137,7 +137,7 @@ export default function App() {
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantMsg.id
-              ? { ...m, content: res.answer, streaming: true }
+              ? { ...m, content: res.answer, sources: res.sources, streaming: true }
               : m
           )
         );
