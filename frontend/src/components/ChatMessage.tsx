@@ -65,7 +65,7 @@ export function ChatMessageView({ message, documentName, isLast, onCopy, onRegen
         <span className={`msg__avatar ${isUser ? 'msg__avatar--user' : 'msg__avatar--ai'}`}>
           {isUser ? 'You' : <SparkIcon size={15} />}
         </span>
-        <span className="msg__author">{isUser ? 'You' : 'Knowledge'}</span>
+        <span className="msg__author">{isUser ? 'You' : 'Docket'}</span>
         {!isUser && documentName && <span className="msg__doc">answered from “{documentName}”</span>}
       </div>
 

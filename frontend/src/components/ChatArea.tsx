@@ -32,7 +32,7 @@ const SUGGESTIONS = [
 // Concierge prompts shown when no document is selected. These introduce the
 // product and guide the user instead of assuming a doc is already in context.
 const CONCIERGE_SUGGESTIONS = [
-  { icon: '✨', text: 'What is Knowledge and what does it do?' },
+  { icon: '✨', text: 'What is Docket and what does it do?' },
   { icon: '📥', text: 'How do I upload and ask about a document?' },
   { icon: '🗂', text: 'What can I ask about my uploaded PDFs?' },
   { icon: '💬', text: 'Can you help me get started?' },
@@ -80,7 +80,7 @@ export function ChatArea({
           <div className="chat__mobile-brand">
             <span className="chat__mobile-logo"><LogoMark size={22} /></span>
             <span className="chat__mobile-title">
-              {activeDocument ? activeDocument.filename : 'Knowledge'}
+              {activeDocument ? activeDocument.filename : 'Docket'}
             </span>
             {activeDocument && (
               <span className="chat__mobile-sub">
@@ -109,7 +109,7 @@ export function ChatArea({
               <div className="msg msg--assistant msg--thinking">
                 <div className="msg__meta">
                   <span className="msg__avatar msg__avatar--ai"><SparkIcon size={15} /></span>
-                  <span className="msg__author">Knowledge</span>
+                  <span className="msg__author">Docket</span>
                 </div>
                 <div className="msg__body">
                   <TypingDots />
@@ -133,7 +133,7 @@ export function ChatArea({
             <p className="welcome__sub">
               {activeDocument
                 ? 'Questions are answered from the content of this PDF — grounded, not guessed.'
-                : 'Chat with Knowledge about the app, or upload a PDF to ask questions grounded in its pages.'}
+                : 'Chat with Docket about the app, or upload a PDF to ask questions grounded in its pages.'}
             </p>
 
             {activeDocument && (
@@ -180,8 +180,8 @@ export function ChatArea({
         />
         <p className="chat__footnote">
           {activeDocument
-            ? 'Knowledge answers from this document, with page citations.'
-            : 'Ask about Knowledge, or upload a document to chat with its content.'}
+            ? 'Docket answers from this document, with page citations.'
+            : 'Ask about Docket, or upload a document to chat with its content.'}
         </p>
       </div>
     </main>

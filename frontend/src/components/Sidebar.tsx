@@ -47,10 +47,10 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
   return (
     <aside className={`sidebar ${collapsed ? 'sidebar--collapsed' : ''}`}>
       <div className="sidebar__head">
-        <button className="brand" onClick={onNewChat} aria-label="Knowledge home">
+        <button className="brand" onClick={onNewChat} aria-label="Docket home">
           <span className="brand__mark"><LogoMark size={30} /></span>
           <span className="brand__text">
-            <span className="brand__name">Knowledge</span>
+            <span className="brand__name">Docket</span>
             <span className="brand__tag">chat with your docs</span>
           </span>
         </button>

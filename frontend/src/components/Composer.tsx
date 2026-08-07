@@ -19,7 +19,7 @@ interface ComposerProps {
 // invite a concierge / product question, since chatting no longer requires a doc.
 const PLACEHOLDER_PHRASES = [
   'Ask anything — or pick a document to chat with its content.',
-  'What is Knowledge and what does it do?',
+  'What is Docket and what does it do?',
   'How do I upload and ask about a PDF?',
   'Summarize this document in a few bullet points.',
   'Extract the key numbers, dates, and data points.',
