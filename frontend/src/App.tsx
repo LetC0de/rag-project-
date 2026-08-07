@@ -75,6 +75,23 @@ export default function App() {
     }
   }, [documents, selectedId]);
 
+  // Any switch of the signed-in user clears the previous session's chat state.
+  // Without this, App stays mounted across logout→login and user 1's messages,
+  // selection, composer text, etc. survive into user 2's session.
+  useEffect(() => {
+    setMessages([]);
+    setSelectedId(null);
+    setComposerValue('');
+    setIsThinking(false);
+    setUploadOpen(false);
+    setPickerOpen(false);
+    setLoadError('');
+    // Cancel any in-flight streaming answer so a stale request from the
+    // previous user can't resolve and write back after the switch.
+    abortRef.current?.abort();
+    abortRef.current = null;
+  }, [user?.id]);
+
   const handleSelect = (id: number) => {
     setSelectedId(id);
     // Close sidebar on mobile after selection
