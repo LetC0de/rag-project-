@@ -713,6 +713,23 @@
   min-width: 0;
 }
 
+/* Document initials box — inherits its host chip's tone instead of a fixed
+   colored box, so it reads as part of the container rather than a sticker. */
+.doc-chip__avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+  color: var(--ink);
+  background: var(--line-soft);
+  flex-shrink: 0;
+}
+
 .doc-chip__badge {
   font-size: 9.5px;
   font-weight: 700;

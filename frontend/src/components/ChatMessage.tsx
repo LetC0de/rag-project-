@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChatMessage } from '../lib/types';
-import { docColor, initialsFromFilename } from '../lib/palette';
+import { initialsFromFilename } from '../lib/palette';
 import { Markdown } from '../lib/markdown';
 import { CheckIcon, CopyIcon, RegenerateIcon, SparkIcon } from './Icons';
 
@@ -65,7 +65,7 @@ export function ChatMessageView({ message, documentName, isLast, onCopy, onRegen
         <span className={`msg__avatar ${isUser ? 'msg__avatar--user' : 'msg__avatar--ai'}`}>
           {isUser ? 'You' : <SparkIcon size={15} />}
         </span>
-        <span className="msg__author">{isUser ? 'You' : 'Quill'}</span>
+        {!isUser && <span className="msg__author">Quill</span>}
         {!isUser && documentName && <span className="msg__doc">answered from “{documentName}”</span>}
       </div>
 
@@ -138,11 +138,11 @@ export function TypingDots({ color }: { color?: string }) {
   );
 }
 
-// Avatar used in the active-document chip in the composer area.
-export function DocumentChipAvatar({ documentId, name }: { documentId: number; name: string }) {
-  const color = docColor(documentId);
+// Avatar used in the active-document chip. It inherits its container's tone
+// (no fixed colored box) so it blends with whichever chip hosts it.
+export function DocumentChipAvatar({ documentId: _documentId, name }: { documentId: number; name: string }) {
   return (
-    <span className="doc-chip__avatar" style={{ background: color.soft, color: color.ink }}>
+    <span className="doc-chip__avatar">
       {initialsFromFilename(name)}
     </span>
   );
