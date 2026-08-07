@@ -899,6 +899,31 @@
     margin-top: 24px;
   }
 
+  /* Follow-up suggestion chips — stacked one per line so each of the four
+     reads as a clear call-to-action on mobile. The grid shrinks to a
+     centered, compact column instead of spanning the full width. */
+  .welcome__suggestions {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    margin-top: 22px;
+    max-width: 340px;
+  }
+
+  .suggestion {
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+
+  .suggestion__icon {
+    font-size: 16px;
+  }
+
+  .suggestion__text {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
   /* Thread adjustments */
   .chat__thread {
     padding: 16px 0 8px;

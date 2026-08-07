@@ -150,8 +150,7 @@ export function ChatArea({
               </button>
             )}
 
-            {!isMobile && (
-              <div className="welcome__suggestions">
+            <div className="welcome__suggestions">
                 {(activeDocument ? SUGGESTIONS : CONCIERGE_SUGGESTIONS).map((s, i) => (
                   <button
                     key={i}
@@ -164,7 +163,6 @@ export function ChatArea({
                   </button>
                 ))}
               </div>
-            )}
           </div>
         </div>
       )}
