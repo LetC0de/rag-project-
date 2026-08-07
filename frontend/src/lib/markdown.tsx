@@ -17,7 +17,8 @@ function renderInline(text: string, key: number): ReactNode {
           return (
             <Fragment key={i}>
               {[...part.matchAll(/\[Page\s*(\d+)\]/g)].map((m) => (
-                <sup key={m.index} className="cite">
+                <sup key={m.index} className="cite" title={`Source: page ${m[1]}`}>
+                  <span className="cite__k">Pg</span>
                   {m[1]}
                 </sup>
               ))}

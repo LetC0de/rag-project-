@@ -384,8 +384,12 @@
   color: var(--brand-deep);
 }
 
-/* Inline page citation sentinels like [Page 3] — rendered as coral badges. */
+/* Inline page citation sentinels like [Page 3] — rendered as a mini reference tag:
+   a small "Pg" label next to the coral numeral, with an explanatory tooltip. */
 .msg__answer .cite {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1.5px;
   font-family: var(--font-display);
   font-size: 0.72em;
   line-height: 1;
@@ -393,7 +397,7 @@
   color: var(--brand-deep);
   background: var(--brand-glow);
   border: 1px solid rgba(255, 107, 61, 0.28);
-  border-radius: 6px;
+  border-radius: 5px;
   padding: 1px 4px;
   margin: 0 1px;
   vertical-align: baseline;
@@ -401,6 +405,17 @@
   top: -0.35em;
   white-space: nowrap;
   user-select: all;
+  cursor: help;
+}
+
+/* The compact "Pg" label — reduces ambiguity of a bare numeral. */
+.msg__answer .cite__k {
+  font-family: var(--font-sans);
+  font-size: 0.64em;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  opacity: 0.75;
 }
 
 /* Two citations sitting together gain a touch of breathing room. */
@@ -954,6 +969,10 @@
   .msg__answer .cite {
     font-size: 0.7em;
     padding: 0 3px;
+  }
+
+  .msg__answer .cite__k {
+    font-size: 0.6em;
   }
 
   /* Composer — full width, bottom-pinned feel */
