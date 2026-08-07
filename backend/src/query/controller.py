@@ -2,13 +2,25 @@ from fastapi import HTTPException
 from src.document.model import DocumentModel
 from src.query.schema import QueryRequestSchema
 from src.rag.llm import llm
-from src.rag.prompt import prompt
+from src.rag.prompt import concierge_prompt, prompt
 from src.rag.retriever import get_retriever
 from src.user.model import UserModel
 from sqlalchemy.orm import Session
 
 
 async def ask_question(request: QueryRequestSchema, db: Session, user: UserModel):
+
+    # Concierge mode: no document selected. Answer about the product itself
+    # from the curated concierge prompt — no retrieval, no citations.
+    if request.document_id is None:
+        final_prompt = concierge_prompt.invoke({"question": request.question})
+        response = llm.invoke(final_prompt)
+        return {
+            "document_id": None,
+            "question": request.question,
+            "answer": response.content,
+            "sources": [],
+        }
 
     # Check document exists (and belongs to the user) before querying Qdrant
     document = (

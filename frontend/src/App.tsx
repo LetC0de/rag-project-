@@ -33,7 +33,6 @@ export default function App() {
   const abortRef = useRef<AbortController | null>(null);
 
   const activeDocument = documents.find((d) => d.id === selectedId) ?? null;
-  const needsDocument = messages.length > 0 && !activeDocument;
 
   // Track viewport width for mobile mode
   useEffect(() => {
@@ -108,20 +107,20 @@ export default function App() {
   const handleSend = useCallback(
     async (overrideText?: string) => {
       const text = (overrideText ?? composerValue).trim();
-      if (!text || !activeDocument || isThinking) return;
+      if (!text || isThinking) return;
 
       const userMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'user',
         content: text,
-        documentId: activeDocument.id,
+        documentId: activeDocument?.id,
       };
 
       const assistantMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'assistant',
         content: '',
-        documentId: activeDocument.id,
+        documentId: activeDocument?.id,
         streaming: true,
       };
 
@@ -132,8 +131,14 @@ export default function App() {
       const controller = new AbortController();
       abortRef.current = controller;
 
+      // With no document selected, omit document_id so the backend answers
+      // in concierge mode (about the product) instead of retrieving content.
+      const payload = activeDocument
+        ? { document_id: activeDocument.id, question: text }
+        : { question: text };
+
       try {
-        const res = await askQuestion({ document_id: activeDocument.id, question: text });
+        const res = await askQuestion(payload);
         setMessages((prev) =>
           prev.map((m) =>
             m.id === assistantMsg.id
@@ -261,11 +266,7 @@ export default function App() {
         onPickDocument={(e) => openPicker(e?.target as HTMLElement | null)}
         onSuggestion={(text) => {
           setComposerValue(text);
-          if (activeDocument) {
-            void handleSend(text);
-          } else {
-            openPicker();
-          }
+          void handleSend(text);
         }}
         onUpload={() => setUploadOpen(true)}
         onStreamingDone={handleStreamingDone}
@@ -278,12 +279,6 @@ export default function App() {
           {loadError} — please try again.
         </div>
       )}
-      {needsDocument && (
-        <div className="toast toast--warn">
-          Pick a document to continue this conversation.
-        </div>
-      )}
-
       <UploadModal open={uploadOpen} onClose={() => setUploadOpen(false)} onUploaded={handleUploaded} />
 
       <DocumentPicker

@@ -29,6 +29,15 @@ const SUGGESTIONS = [
   { icon: '💡', text: 'Explain the most important concepts in plain language.' },
 ];
 
+// Concierge prompts shown when no document is selected. These introduce the
+// product and guide the user instead of assuming a doc is already in context.
+const CONCIERGE_SUGGESTIONS = [
+  { icon: '✨', text: 'What is Knowledge and what does it do?' },
+  { icon: '📥', text: 'How do I upload and ask about a document?' },
+  { icon: '🗂', text: 'What can I ask about my uploaded PDFs?' },
+  { icon: '💬', text: 'Can you help me get started?' },
+];
+
 export function ChatArea({
   messages,
   activeDocument,
@@ -118,13 +127,13 @@ export function ChatArea({
               {activeDocument ? (
                 <>Ask anything about <em>"{activeDocument.filename}"</em></>
               ) : (
-                <>Chat with your <em>documents</em></>
+                <>Your <em>enterprise document assistant</em></>
               )}
             </h1>
             <p className="welcome__sub">
               {activeDocument
                 ? 'Questions are answered from the content of this PDF — grounded, not guessed.'
-                : 'Upload a PDF, then ask questions. Answers are grounded in your document.'}
+                : 'Chat with Knowledge about the app, or upload a PDF to ask questions grounded in its pages.'}
             </p>
 
             {activeDocument && (
@@ -143,7 +152,7 @@ export function ChatArea({
 
             {!isMobile && (
               <div className="welcome__suggestions">
-                {SUGGESTIONS.map((s, i) => (
+                {(activeDocument ? SUGGESTIONS : CONCIERGE_SUGGESTIONS).map((s, i) => (
                   <button
                     key={i}
                     className="suggestion"
@@ -170,9 +179,12 @@ export function ChatArea({
           activeDocument={activeDocument}
           onClearDocument={onClearDocument}
           onPickDocument={onPickDocument}
-          disabled={hasChat && !activeDocument}
         />
-        <p className="chat__footnote">Knowledge answers from your uploaded documents only.</p>
+        <p className="chat__footnote">
+          {activeDocument
+            ? 'Knowledge answers from this document, with page citations.'
+            : 'Ask about Knowledge, or upload a document to chat with its content.'}
+        </p>
       </div>
     </main>
   );

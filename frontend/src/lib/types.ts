@@ -29,7 +29,9 @@ export interface Document {
 }
 
 export interface QueryRequest {
-  document_id: number;
+  // Optional: when omitted, the assistant answers in concierge mode
+  // (about the product) rather than retrieving from a document.
+  document_id?: number;
   question: string;
 }
 

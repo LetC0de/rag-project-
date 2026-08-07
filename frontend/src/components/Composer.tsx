@@ -15,13 +15,14 @@ interface ComposerProps {
 }
 
 // Rotating placeholder phrases shown one at a time inside the text box.
-// The first is the "pick a document" hint; the rest are follow-up prompts.
+// When a document is selected these steer follow-up prompts; otherwise they
+// invite a concierge / product question, since chatting no longer requires a doc.
 const PLACEHOLDER_PHRASES = [
-  'Pick a document, then ask anything…',
+  'Ask anything — or pick a document to chat with its content.',
+  'What is Knowledge and what does it do?',
+  'How do I upload and ask about a PDF?',
   'Summarize this document in a few bullet points.',
-  'What are the main key takeaways and conclusions?',
   'Extract the key numbers, dates, and data points.',
-  'Explain the most important concepts in plain language.',
 ];
 
 const ROTATE_MS = 3200;
