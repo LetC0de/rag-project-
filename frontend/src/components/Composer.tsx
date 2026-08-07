@@ -20,7 +20,7 @@ interface ComposerProps {
 const PLACEHOLDER_PHRASES = [
   'Ask anything — or pick a document to chat with its content.',
   'What is Quill and what does it do?',
-  'How do I upload and ask about a PDF?',
+  'How do I upload and ask about a document?',
   'Summarize this document in a few bullet points.',
   'Extract the key numbers, dates, and data points.',
 ];

@@ -106,13 +106,13 @@ export function DocumentPicker({ open, anchor, documents, onSelect, onUpload, on
           </button>
         </div>
 
-      {/* Option 1 — upload a new PDF */}
+      {/* Option 1 — upload a new document */}
       <div className="picker__section">
         <button className="picker__upload-row" onClick={handleUpload}>
           <span className="picker__upload-ico"><PlusIcon size={17} /></span>
           <span className="picker__upload-meta">
             <span className="picker__upload-name">Upload new</span>
-            <span className="picker__upload-sub">Add a PDF to chat</span>
+            <span className="picker__upload-sub">Add a document to chat</span>
           </span>
         </button>
       </div>

@@ -78,7 +78,7 @@ export function UploadModal({ open, onClose, onUploaded }: UploadModalProps) {
 
   return (
     <div className="modal-overlay" onMouseDown={phase !== 'uploading' ? onClose : undefined}>
-      <div className="modal" role="dialog" aria-modal="true" aria-label="Upload a PDF" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="modal" role="dialog" aria-modal="true" aria-label="Upload a document" onMouseDown={(e) => e.stopPropagation()}>
         <div className="modal__head">
           <h2 className="modal__title">Add a document</h2>
           {phase !== 'uploading' && (
@@ -97,7 +97,7 @@ export function UploadModal({ open, onClose, onUploaded }: UploadModalProps) {
             onDrop={onDrop}
           >
             <div className="dropzone__icon"><UploadIcon size={26} /></div>
-            <p className="dropzone__title">Drag &amp; drop your PDF here</p>
+            <p className="dropzone__title">Drag &amp; drop your document here</p>
             <p className="dropzone__sub">or <span className="dropzone__link">browse files</span> from your device</p>
             <span className="dropzone__hint">PDF · up to 40 MB</span>
             <input

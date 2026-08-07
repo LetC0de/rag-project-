@@ -119,7 +119,7 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
             {documents.length === 0 && (
               <div className="doc-list__empty">
                 <p>No documents yet.</p>
-                <p>Upload a PDF to start asking questions.</p>
+                <p>Upload a document to start asking questions.</p>
               </div>
             )}
 

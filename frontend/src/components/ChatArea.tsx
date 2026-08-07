@@ -34,7 +34,7 @@ const SUGGESTIONS = [
 const CONCIERGE_SUGGESTIONS = [
   { icon: '✨', text: 'What is Quill and what does it do?' },
   { icon: '📥', text: 'How do I upload and ask about a document?' },
-  { icon: '🗂', text: 'What can I ask about my uploaded PDFs?' },
+  { icon: '🗂', text: 'What can I ask about my uploaded documents?' },
   { icon: '💬', text: 'Can you help me get started?' },
 ];
 
@@ -136,8 +136,8 @@ export function ChatArea({
             </h1>
             <p className="welcome__sub">
               {activeDocument
-                ? 'Questions are answered from the content of this PDF — grounded, not guessed.'
-                : 'Chat with Quill about the app, or upload a PDF to ask questions grounded in its pages.'}
+                ? 'Questions are answered from the content of this document — grounded, not guessed.'
+                : 'Upload a document to ask questions grounded in its pages, or chat with Quill about the app.'}
             </p>
 
             {activeDocument && (
@@ -150,7 +150,7 @@ export function ChatArea({
             {!activeDocument && (
               <button className="welcome__upload" onClick={onUpload}>
                 <UploadIcon size={18} />
-                Upload your first PDF
+                Upload your first document
               </button>
             )}
 
