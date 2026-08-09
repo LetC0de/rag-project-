@@ -275,6 +275,9 @@
   }
 
   .modal {
+    width: 100%;
+    max-width: 100%;
+    max-height: 90dvh;
     border-radius: 22px 22px 20px 20px;
     padding: 20px;
     animation: slide-up 0.32s cubic-bezier(0.34, 1.56, 0.64, 1) both;
@@ -310,9 +313,11 @@
   .modal-overlay {
     padding: 8px;
     padding-bottom: calc(8px + var(--safe-bottom));
+    align-items: flex-end;
   }
 
   .modal {
+    max-height: 92dvh;
     padding: 18px;
     border-radius: 20px 20px 18px 18px;
   }

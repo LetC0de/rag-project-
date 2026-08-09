@@ -403,6 +403,23 @@
   }
 }
 
+@media (max-width: 480px) {
+  .auth {
+    padding: 12px;
+    padding-top: calc(12px + var(--safe-top));
+    padding-bottom: calc(12px + var(--safe-bottom));
+  }
+
+  .auth__card {
+    padding: 26px 20px 22px;
+    border-radius: 24px;
+  }
+
+  .auth__title {
+    font-size: 24px;
+  }
+}
+
 @media (max-width: 380px) {
   .auth {
     padding: 12px;

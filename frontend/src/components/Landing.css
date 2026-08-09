@@ -1062,8 +1062,6 @@
 }
 
 @media (max-width: 640px) {
-
-@media (max-width: 640px) {
   .landing__nav-inner {
     padding: 14px 18px;
   }
@@ -1162,9 +1160,6 @@
   /* Un-tilt the mock so a small screen presents it straight-on like a device. */
   .hero__stage {
     transform: none;
-  }
-
-  .hero__stage {
     max-width: 100%;
   }
 
@@ -1220,8 +1215,55 @@
   }
 }
 
-/* Short landscape (phones sideways): cap the hero so the whole CTA row is
-   visible without scrolling, then let the page flow normally below. */
+/* Very narrow phones (~328px and under): trim the display type and let the
+   hero copy breathe without a cramped feeling. */
+@media (max-width: 360px) {
+  .hero__title {
+    font-size: 34px;
+    letter-spacing: -1px;
+  }
+
+  .hero__stage {
+    font-size: 14px;
+  }
+
+  .landing__nav-inner {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .landing__hero {
+    padding: 44px 14px 40px;
+  }
+
+  .landing__features,
+  .landing__how {
+    padding: 56px 14px;
+  }
+
+  .landing__section-title {
+    font-size: 27px;
+  }
+
+  .landing__cta-inner {
+    padding: 42px 16px 40px;
+  }
+
+  .cta__title {
+    font-size: 28px;
+  }
+}
+
+/* Short screens everywhere (not just the hero): keep the marquee's baseline
+   and the footer from feeling cramped when height is tight. */
+@media (max-height: 560px) {
+  .landing__marquee {
+    padding: 12px 0;
+  }
+}
+
+/* Short landscape phones (phones sideways): fit the hero so the whole CTA row
+   is visible without scrolling, then let the page flow normally below. */
 @media (max-height: 560px) and (min-width: 641px) {
   .landing__hero {
     padding-top: 40px;

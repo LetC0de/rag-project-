@@ -635,8 +635,14 @@
   }
 
   .doc-item__del {
-    opacity: 0.7;
-    width: 44px;
+    opacity: 0.85;
+    width: 46px;
+  }
+
+  /* On touch, never hide the delete control — it's a primary action now. */
+  .doc-item--active .doc-item__del,
+  .doc-item__del--confirm {
+    opacity: 1;
   }
 
   .new-chat {
@@ -650,11 +656,21 @@
    ============================================================ */
 @media (max-width: 480px) {
   .sidebar {
-    width: min(85vw, var(--sidebar-w));
-    min-width: min(85vw, var(--sidebar-w));
+    width: min(88vw, var(--sidebar-w));
+    min-width: min(88vw, var(--sidebar-w));
   }
 
   .brand__name {
     font-size: 19px;
+  }
+
+  .brand__tag {
+    font-size: 11px;
+  }
+
+  /* Edit-swipe affordance is invisible; keep the section header tidy when
+     a document's filename is long. */
+  .doc-item__sub {
+    font-size: 11px;
   }
 }

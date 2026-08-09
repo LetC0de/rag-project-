@@ -13,9 +13,11 @@
   display: none;
   align-items: center;
   gap: 10px;
-  height: var(--mobile-header-h);
-  padding: 0 var(--mobile-pad);
-  padding-left: calc(var(--mobile-pad) + var(--safe-left));
+  /* Fixed height + safe-area top padding so the logo/title never sit under a
+     notch or status bar on phones. Adding to the fixed height (rather than
+     the height collapsing) keeps every bar the same height. */
+  height: calc(var(--mobile-header-h) + var(--safe-top));
+  padding: var(--safe-top) var(--mobile-pad) 0;
   background: rgba(255, 253, 249, 0.85);
   backdrop-filter: blur(18px) saturate(1.1);
   -webkit-backdrop-filter: blur(18px) saturate(1.1);
@@ -385,6 +387,12 @@
   line-height: 1.65;
   color: var(--ink);
   min-width: 220px;
+  /* Long unbroken tokens and wide tables must scroll inside the card
+     instead of shoving the whole thread horizontally off-screen. */
+  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 .msg__answer p { margin: 0 0 12px; }
@@ -918,15 +926,17 @@
   /* Center the brand lockup (logo + "Quill Assistant") in the menu bar.
      The hamburger stays pinned to the left; the title reads dead-center.
      max-width + overflow keeps a long filename on a single clean line
-     instead of wrapping into broken text. */
+     instead of wrapping into broken text. Centered on the *safe* band
+     (below the notch) rather than the full bar height. */
   .chat__mobile-brand {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: calc(50% + var(--safe-top) / 2);
     transform: translate(-50%, -50%);
     gap: 8px;
     padding-bottom: 7px;
     max-width: 60%;
+    pointer-events: none; /* long titles must not block hamburger taps */
   }
 
   .chat__mobile-title {
@@ -1133,6 +1143,18 @@
     background: linear-gradient(180deg, transparent 0%, rgba(250, 246, 239, 0.7) 30%);
   }
 
+  /* The welcome lockup (title → chips) sits in the middle of the screen on
+     tall phones but must climb on short ones, else the chips slide under the
+     composer. margin:auto first centers it, then these tighten the margins
+     so the whole stack stays visible between header and composer. */
+  .chat__welcome {
+    align-items: center;
+  }
+
+  .welcome__inner {
+    margin: auto;
+  }
+
   .composer {
     border-radius: 20px;
     padding: 9px 9px 7px;
@@ -1189,6 +1211,21 @@
   .chat__thread-inner {
     padding: 0 12px;
     gap: 18px;
+  }
+
+  /* Narrow screen: keep the centered title tidy beside the hamburger, and
+     drop the side "Ready" status so a long filename has room to breathe. */
+  .chat__mobile-brand {
+    max-width: 56%;
+    gap: 5px;
+  }
+
+  .chat__mobile-sub {
+    display: none;
+  }
+
+  .chat__mobile-title {
+    font-size: 17px;
   }
 
   .msg__meta {

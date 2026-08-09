@@ -256,13 +256,18 @@
   }
 
   .picker__head {
-    padding: 0 2px 8px 6px;
+    padding: 0 2px 6px 6px;
   }
 
   .picker__close {
     width: 36px;
     height: 36px;
     border-radius: 11px;
+  }
+
+  /* Scrolling list never runs under the sheet's rounded top. */
+  .picker__list {
+    max-height: none;
   }
 
   .picker__upload-row {
@@ -310,11 +315,16 @@
    ============================================================ */
 @media (max-width: 480px) {
   .picker {
-    max-height: 50vh;
+    max-height: 60vh;
     padding: 10px 10px calc(10px + var(--safe-bottom));
   }
 
   .picker__item {
     padding: 9px 10px;
+  }
+
+  /* Remove the drag handle on tiny screens — documents list needs the room. */
+  .picker::before {
+    margin-bottom: 6px;
   }
 }
