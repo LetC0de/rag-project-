@@ -88,9 +88,24 @@ body {
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
-  /* Prevent pull-to-refresh on mobile */
   overscroll-behavior: none;
+}
+/* Prevent pull-to-refresh on mobile for the app shell, but never scroll-lock
+   the body: the landing page needs to scroll. The app (.app + chat) locks
+   within its own containers instead. */
+.app {
+  height: 100%;
+  overflow: hidden;
+}
+@media (max-width: 860px) {
+  .app {
+    overflow: hidden;
+  }
+}
+
+/* Anchor jumps land with breathing room instead of hugging the sticky nav. */
+html {
+  scroll-behavior: smooth;
 }
 
 /* ------- Ambient background: sun-warmed blobs + grain ------- */

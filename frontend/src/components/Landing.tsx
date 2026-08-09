@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LogoMark, SparkIcon, UploadIcon, CheckIcon, FileIcon, NewChatIcon } from './Icons';
 import { initialsFromFilename, docColor } from '../lib/palette';
 import './Landing.css';
@@ -35,19 +35,71 @@ const FEATURES = [
   },
 ];
 
+type StepKey = 'upload' | 'ask' | 'answer';
+
+const STEPS: Array<{ icon: StepKey; title: string; body: string }> = [
+  {
+    icon: 'upload',
+    title: 'Upload your document',
+    body: 'PDFs, Word files, slide decks, or plain text — drag it in and Quill takes it from there.',
+  },
+  {
+    icon: 'ask',
+    title: 'Ask in plain language',
+    body: 'No prompts, no formatting. Ask “what are the risks?” the way you would ask a colleague.',
+  },
+  {
+    icon: 'answer',
+    title: 'Get cited answers',
+    body: 'Every answer comes with page references, so you can jump straight to the source and verify.',
+  },
+];
+
 const FILE_TYPES = ['PDF', 'DOCX', 'PPTX', 'TXT', 'MD', 'Contracts', 'Research', 'Reports'];
 
-// Q&A shown in the mock chat window.
-const MOCK_QA = {
-  question: 'What were the key revenue takeaways?',
-  answer:
-    'Revenue grew 22% year over year to $4.2M, driven by enterprise renewals and a strong Q3. Gross margin held at 71%, and the board noted an encouraging shift toward annual contracts.',
-  sources: [
-    { label: 'pg', num: '3' },
-    { label: 'pg', num: '7' },
-    { label: 'pg', num: '12' },
-  ],
-};
+// Canned exchanges the hero mock cycles through when tapped.
+const MOCK_PLAYS = [
+  {
+    question: 'What were the key revenue takeaways?',
+    lead: [
+      { text: 'Revenue up ', strong: true },
+      { text: '22%', strong: false },
+    ] as const,
+    answer:
+      'Revenue grew 22% year over year to $4.2M, driven by enterprise renewals and a strong Q3. Gross margin held at 71%, and the board noted an encouraging shift toward annual contracts.',
+    sources: [
+      { label: 'pg', num: '3' },
+      { label: 'pg', num: '7' },
+      { label: 'pg', num: '12' },
+    ],
+  },
+  {
+    question: 'Summarize the risks section in under 30 words.',
+    lead: [
+      { text: 'Key risks ', strong: true },
+      { text: 'identified', strong: false },
+    ] as const,
+    answer:
+      'Main risks: reliance on a single cloud region, FX exposure on APAC revenue, and a key-man dependency on the data team. Mitigations are documented in §4.2.',
+    sources: [
+      { label: 'pg', num: '9' },
+      { label: '§', num: '4.2' },
+    ],
+  },
+  {
+    question: 'Pull out the launch dates from the roadmap.',
+    lead: [
+      { text: 'Launch dates ', strong: true },
+      { text: 'extracted', strong: false },
+    ] as const,
+    answer:
+      'Public beta ships June 3, GA is targeted for August 17, and the enterprise tier lands in late Q4 alongside the mobile companion app.',
+    sources: [
+      { label: 'pg', num: '5' },
+      { label: 'pg', num: '21' },
+    ],
+  },
+];
 
 function FeatureIcon({ name }: { name: string }) {
   if (name === 'bolt') {
@@ -64,44 +116,90 @@ function FeatureIcon({ name }: { name: string }) {
   return <FileIcon size={19} />;
 }
 
+function StepIcon({ name }: { name: StepKey }) {
+  if (name === 'ask') return <NewChatIcon size={20} />;
+  if (name === 'answer') return <CheckIcon size={20} />;
+  return <UploadIcon size={20} />;
+}
+
 export function Landing({ onLogin, onRegister }: LandingProps) {
+  const [playIndex, setPlayIndex] = useState(0);
   const [typed, setTyped] = useState('');
-  const [typingDone, setTypingDone] = useState(false);
+  const [phase, setPhase] = useState<'typing' | 'done'>('typing');
   const [scrolled, setScrolled] = useState(false);
+  const [marqueePaused, setMarqueePaused] = useState(false);
 
-  const answer = MOCK_QA.answer;
+  const timerRef = useRef<number | undefined>(undefined);
+  const frameRef = useRef(0);
+  const playIndexRef = useRef(playIndex);
+  playIndexRef.current = playIndex;
 
-  // Reveal the mock answer with a typewriter effect once the window is shown.
+  const play = MOCK_PLAYS[playIndex];
+
+  // Reveal-on-scroll: the observer toggles .is-revealed on [data-reveal] elms.
   useEffect(() => {
-    let i = 0;
-    let frame = 0;
-    let interval: number | undefined;
-    const step = () => {
-      i += 2;
-      if (i < answer.length) {
-        setTyped(answer.slice(0, i));
-        frame = window.requestAnimationFrame(step);
-      } else {
-        setTyped(answer);
-        setTypingDone(true);
-      }
-    };
-    // Small delay so the entrance animation lands before typing begins.
-    interval = window.setTimeout(() => {
-      frame = window.requestAnimationFrame(step);
-    }, 900);
-    return () => {
-      window.clearTimeout(interval);
-      window.cancelAnimationFrame(frame);
-    };
-  }, [answer]);
-
-  // Tighten the nav on scroll.
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    const observed = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+    if (!('IntersectionObserver' in window)) {
+      observed.forEach((el) => el.classList.add('is-revealed'));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.18, root: null, rootMargin: '0px 0px -8% 0px' }
+    );
+    observed.forEach((el) => io.observe(el));
+    return () => io.disconnect();
   }, []);
+
+  // Type the current play's answer, fresh each time the play changes.
+  useEffect(() => {
+    const answer = MOCK_PLAYS[playIndexRef.current].answer;
+    window.clearTimeout(timerRef.current);
+    window.cancelAnimationFrame(frameRef.current);
+
+    setPhase('typing');
+    setTyped('');
+
+    timerRef.current = window.setTimeout(() => {
+      let i = 0;
+      const step = () => {
+        i += 2;
+        if (i < answer.length) {
+          setTyped(answer.slice(0, i));
+          frameRef.current = window.requestAnimationFrame(step);
+        } else {
+          setTyped(answer);
+          setPhase('done');
+        }
+      };
+      frameRef.current = window.requestAnimationFrame(step);
+    }, 420);
+  }, [playIndex]);
+
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(timerRef.current);
+      window.cancelAnimationFrame(frameRef.current);
+    };
+  }, []);
+
+  // Tighten the nav once the user scrolls down.
+  useEffect(() => {
+    const scroller = document.querySelector<HTMLElement>('.landing');
+    if (!scroller) return;
+    const onScroll = () => setScrolled(scroller.scrollTop > 16);
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    return () => scroller.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const replay = () => setPlayIndex((i) => (i + 1) % MOCK_PLAYS.length);
 
   const marquee = FILE_TYPES.concat(FILE_TYPES);
 
@@ -179,7 +277,19 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
 
           {/* ---------- Chat mockup ---------- */}
           <div className="hero__stage">
-            <div className="hero-mock" role="img" aria-label="A chat with Quill: you ask about a report's revenue takeaways, Quill answers with citations">
+            <div
+              className="hero-mock"
+              role="button"
+              tabIndex={0}
+              onClick={replay}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  replay();
+                }
+              }}
+              aria-label="A chat with Quill. Tap or press Enter to play another example."
+            >
               <div className="hero-mock__bar">
                 <span className="hero-mock__traffic"><i /><i /><i /></span>
                 <span className="hero-mock__title">
@@ -192,20 +302,26 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
 
               <div className="hero-mock__body">
                 <div className="mock-msg mock-msg--user">
-                  {MOCK_QA.question}
+                  {play.question}
                 </div>
 
                 <div className="mock-msg mock-msg--ai">
                   <span className="mock-msg__avatar"><SparkIcon size={14} /></span>
                   <div className="mock-msg__answer">
-                    <p>
-                      {typed}
-                      {!typingDone && <span className="mock-msg__caret" aria-hidden="true" />}
+                    <p className="mock-msg__lead">
+                      {play.lead.map((part, i) => (
+                        <span className={part.strong ? 'mock-lead__up' : 'mock-lead__strong'} key={i}>
+                          {part.text}
+                        </span>
+                      ))}
+                      <span className="mock-msg__caret" aria-hidden="true" />
+                      <br />
+                      <span className="mock-msg__typed">{typed}</span>
                     </p>
-                    {typingDone && (
+                    {phase === 'done' && (
                       <div className="mock-msg__sources" aria-label="Sources">
-                        {MOCK_QA.sources.map((s) => (
-                          <span className="mock-msg__source" key={s.num}>
+                        {play.sources.map((s) => (
+                          <span className="mock-msg__source" key={`${s.label}${s.num}`}>
                             <span className="mock-msg__source-label">{s.label}</span>
                             {s.num}
                           </span>
@@ -215,12 +331,16 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
                   </div>
                 </div>
 
-                {!typingDone && (
+                {phase !== 'done' && (
                   <div className="mock-msg mock-msg--typing">
                     <span className="mock-msg__avatar"><SparkIcon size={14} /></span>
                     <span className="mock-msg__dots"><i /><i /><i /></span>
                   </div>
                 )}
+              </div>
+
+              <div className="hero-mock__refresh">
+                <span>Tap to replay</span>
               </div>
             </div>
 
@@ -255,8 +375,15 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
       </section>
 
       {/* ---------- Marquee ---------- */}
-      <div className="landing__marquee" aria-hidden="true">
-        <div className="landing__marquee-track">
+      <div
+        className="landing__marquee"
+        aria-hidden="true"
+        onMouseEnter={() => setMarqueePaused(true)}
+        onMouseLeave={() => setMarqueePaused(false)}
+        onPointerDown={() => setMarqueePaused(true)}
+        onPointerUp={() => setMarqueePaused(false)}
+      >
+        <div className={`landing__marquee-track${marqueePaused ? ' landing__marquee-track--paused' : ''}`}>
           {marquee.map((t, i) => (
             <span className="landing__marquee-item" key={`${t}-${i}`}>
               <FileIcon size={15} />
@@ -270,14 +397,14 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
       {/* ---------- Features ---------- */}
       <section className="landing__features" id="features">
         <div className="landing__features-inner">
-          <span className="hero__eyebrow"><span className="hero__eyebrow-dot" aria-hidden="true" /> Why Quill</span>
-          <h2 className="landing__section-title">
+          <span className="hero__eyebrow" data-reveal><span className="hero__eyebrow-dot" aria-hidden="true" /> Why Quill</span>
+          <h2 className="landing__section-title" data-reveal>
             Everything to ask your files, <em>nothing to lose.</em>
           </h2>
 
           <div className="features__grid">
             {FEATURES.map((f, i) => (
-              <article className="feature-card" key={f.title} style={{ animationDelay: `${120 + i * 90}ms` }}>
+              <article className="feature-card" key={f.title} data-reveal style={{ ['--reveal-delay' as string]: `${i * 100}ms` }}>
                 <span className="feature-card__icon">
                   <FeatureIcon name={f.icon} />
                 </span>
@@ -292,35 +419,25 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
       {/* ---------- How it works ---------- */}
       <section className="landing__how" id="how">
         <div className="landing__how-inner">
-          <span className="hero__eyebrow"><span className="hero__eyebrow-dot" aria-hidden="true" /> How it works</span>
-          <h2 className="landing__section-title">From upload to answer, <em>in three steps.</em></h2>
+          <span className="hero__eyebrow" data-reveal><span className="hero__eyebrow-dot" aria-hidden="true" /> How it works</span>
+          <h2 className="landing__section-title" data-reveal>From upload to answer, <em>in three steps.</em></h2>
 
           <ol className="how__steps">
-            <li className="how__step">
-              <span className="how__step-num">01</span>
-              <span className="how__step-icon"><UploadIcon size={20} /></span>
-              <h3>Upload your document</h3>
-              <p>PDFs, Word files, slide decks, or plain text — drag it in and Quill takes it from there.</p>
-            </li>
-            <li className="how__step">
-              <span className="how__step-num">02</span>
-              <span className="how__step-icon"><NewChatIcon size={20} /></span>
-              <h3>Ask in plain language</h3>
-              <p>No prompts, no formatting. Ask “what are the risks on page 9?” the way you&rsquo;d ask a colleague.</p>
-            </li>
-            <li className="how__step">
-              <span className="how__step-num">03</span>
-              <span className="how__step-icon"><CheckIcon size={20} /></span>
-              <h3>Get cited answers</h3>
-              <p>Every answer comes with page references, so you can jump straight to the source and verify.</p>
-            </li>
+            {STEPS.map((s, i) => (
+              <li className="how__step" key={s.title} data-reveal style={{ ['--reveal-delay' as string]: `${i * 100}ms` }}>
+                <span className="how__step-num">0{i + 1}</span>
+                <span className="how__step-icon"><StepIcon name={s.icon} /></span>
+                <h3>{s.title}</h3>
+                <p>{s.body}</p>
+              </li>
+            ))}
           </ol>
         </div>
       </section>
 
       {/* ---------- Final CTA ---------- */}
       <section className="landing__cta">
-        <div className="landing__cta-inner">
+        <div className="landing__cta-inner" data-reveal>
           <div className="cta__spark" aria-hidden="true"><LogoMark size={46} /></div>
           <h2 className="cta__title">Give your documents a <em>voice.</em></h2>
           <p className="cta__sub">Create a free account and start chatting with your files in under a minute.</p>

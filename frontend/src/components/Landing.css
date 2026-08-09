@@ -7,13 +7,25 @@
 
 .landing {
   position: relative;
-  min-height: 100vh;
+  height: 100%;       /* body no longer scrolls — .landing is its own scroller */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
   background: var(--bg);
   color: var(--ink);
-  overflow-x: hidden;
+}
+
+/* Anchor sections land below the sticky nav instead of under it. */
+#how, #features {
+  scroll-margin-top: 90px;
 }
 
 .landing-bg {
+  /* fixed: the blobs stay pinned to the viewport as an ambient layer while
+     the page scrolls over them (same pattern as the auth screen). .landing
+     has no transform/filter, so it never becomes the fixed containing block
+     and the layer is not clipped by the container's overflow. */
   position: fixed;
   inset: 0;
   z-index: 0;
@@ -134,6 +146,39 @@
   transform: translateY(-1px);
   filter: saturate(1.08);
   box-shadow: 0 12px 24px -8px rgba(242, 84, 31, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* ------------------------------------------------ Scroll reveal */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* Generic keyframes re-declared so the landing is self-contained
+   (global keyframes live in the app-chat CSS, not here). */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.04); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0.25; }
+  40% { opacity: 1; }
 }
 
 /* ------------------------------------------------ Hero */
@@ -285,6 +330,23 @@
     0 14px 34px -20px rgba(80, 60, 30, 0.24);
   overflow: hidden;
   animation: mock-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+/* On devices with a pointer, the mock invites a tap. */
+@media (hover: hover) and (pointer: fine) {
+  .hero-mock:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 2px 0 rgba(255, 255, 255, 0.6) inset,
+      0 44px 100px -34px rgba(80, 60, 30, 0.46),
+      0 16px 36px -20px rgba(80, 60, 30, 0.26);
+  }
+}
+
+.hero-mock:active {
+  transform: scale(0.992);
 }
 
 @keyframes mock-in {
@@ -428,6 +490,33 @@
   margin: 0;
 }
 
+/* Bold serif lead-in ("Revenue up 22%") then a plain-type paragraph that
+   types itself. The lead is a small serif flourish so the mock reads like
+   a polished product screenshot instead of raw chat. */
+.mock-msg__lead {
+  font-size: 13.5px;
+  line-height: 1.62;
+}
+
+.mock-lead__up {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--brand-deep);
+}
+
+.mock-lead__strong {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14.5px;
+}
+
+.mock-msg__typed {
+  color: var(--ink);
+  font-size: 13.5px;
+  line-height: 1.62;
+}
+
 .mock-msg__caret {
   display: inline-block;
   width: 2px;
@@ -436,6 +525,27 @@
   vertical-align: -2px;
   background: var(--brand);
   animation: caret-blink 0.9s steps(1) infinite;
+}
+
+/* A tiny "tap to replay" hint pinned to the mock's base corner. */
+.hero-mock__refresh {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0;
+  border-top: 1px dashed var(--line);
+  background: rgba(250, 246, 239, 0.4);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.hero-mock__refresh span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 @keyframes caret-blink {
@@ -619,6 +729,10 @@
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
+}
+
+.landing__marquee-track--paused {
+  animation-play-state: paused;
 }
 
 .landing__marquee-item {
@@ -913,6 +1027,19 @@
 
 /* ------------------------------------------------ Responsive */
 
+/* Contained floaters + no hover on touch devices (hover is a lie on tap). */
+/* On touch devices nothing hovers, so running entrance/entrance re-animations
+   that are purely decorative get frozen after one pass keeps the page calm. */
+@media (hover: none) {
+  .hero-float,
+  .hero-mock,
+  .mock-msg,
+  .feature-card,
+  .how__step-icon {
+    animation-play-state: paused;
+  }
+}
+
 @media (max-width: 960px) {
   .landing__hero-inner {
     grid-template-columns: 1fr;
@@ -933,6 +1060,8 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+@media (max-width: 640px) {
 
 @media (max-width: 640px) {
   .landing__nav-inner {
@@ -1026,5 +1155,99 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 22px 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Un-tilt the mock so a small screen presents it straight-on like a device. */
+  .hero__stage {
+    transform: none;
+  }
+
+  .hero__stage {
+    max-width: 100%;
+  }
+
+  /* Soft sorcerer touch: floaters only peer out during the entrance, then
+     settle behind the mock so they never crowd the small hero. */
+  .hero-float {
+    display: none;
+  }
+
+  .hero__glow {
+    display: none;
+  }
+
+  .hero-mock {
+    border-radius: 20px;
+  }
+
+  .hero-mock__bar {
+    padding: 10px 12px;
+  }
+
+  .hero-mock__title {
+    font-size: 13px;
+  }
+
+  .hero-mock__doc {
+    display: none;
+  }
+
+  .hero-mock__body {
+    gap: 12px;
+    padding: 14px 12px 16px;
+  }
+
+  .mock-msg__answer {
+    font-size: 13px;
+  }
+
+  .landing__marquee-item {
+    font-size: 15px;
+    padding: 0 18px;
+  }
+
+  /* Compact the "how it works" step numbers so cards breathe on tiny phones. */
+  .how__step-num {
+    font-size: 28px;
+    top: 18px;
+    right: 18px;
+  }
+
+  .cta__sub {
+    font-size: 15px;
+  }
+}
+
+/* Short landscape (phones sideways): cap the hero so the whole CTA row is
+   visible without scrolling, then let the page flow normally below. */
+@media (max-height: 560px) and (min-width: 641px) {
+  .landing__hero {
+    padding-top: 40px;
+    padding-bottom: 40px;
+  }
+
+  .landing__hero-inner {
+    align-items: center;
+    gap: 40px;
+  }
+
+  .hero__title {
+    font-size: clamp(34px, 5vw, 50px);
+    margin-bottom: 14px;
+  }
+
+  .hero__sub {
+    margin-bottom: 18px;
+    font-size: 15.5px;
+  }
+
+  .hero__cta {
+    margin-bottom: 16px;
+  }
+
+  .hero__stage {
+    padding: 20px 0;
   }
 }
