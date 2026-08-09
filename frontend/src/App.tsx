@@ -7,6 +7,7 @@ import { ChatArea } from './components/ChatArea';
 import { UploadModal } from './components/UploadModal';
 import { DocumentPicker } from './components/DocumentPicker';
 import { AuthScreen } from './components/AuthScreen';
+import { Landing } from './components/Landing';
 import { LogoMark } from './components/Icons';
 import './App.css';
 import './components/Sidebar.css';
@@ -14,9 +15,15 @@ import './components/ChatArea.css';
 import './components/UploadModal.css';
 import './components/DocumentPicker.css';
 import './components/AuthScreen.css';
+import './components/Landing.css';
+
+// Where an unauthenticated visitor is sent: the marketing landing page by
+// default, or the auth card once they tap Log in / Get started.
+type GuestView = 'landing' | 'login' | 'register';
 
 export default function App() {
   const { user, isBooting, logout } = useAuth();
+  const [guestView, setGuestView] = useState<GuestView>('landing');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -79,6 +86,7 @@ export default function App() {
   // Without this, App stays mounted across logout→login and user 1's messages,
   // selection, composer text, etc. survive into user 2's session.
   useEffect(() => {
+    setGuestView('landing');
     setMessages([]);
     setSelectedId(null);
     setComposerValue('');
@@ -249,7 +257,20 @@ export default function App() {
   }
 
   if (!user) {
-    return <AuthScreen />;
+    if (guestView === 'landing') {
+      return (
+        <Landing
+          onLogin={() => setGuestView('login')}
+          onRegister={() => setGuestView('register')}
+        />
+      );
+    }
+    return (
+      <AuthScreen
+        initialMode={guestView}
+        onBack={() => setGuestView('landing')}
+      />
+    );
   }
 
   return (

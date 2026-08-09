@@ -5,6 +5,11 @@ import './AuthScreen.css';
 
 type Mode = 'login' | 'register';
 
+interface AuthScreenProps {
+  initialMode?: Mode; // which tab to start on (default 'login')
+  onBack?: () => void; // when set, shows a "back to home" control instead of just auth
+}
+
 const VALIDATION = {
   name: (v: string) => (v.trim().length < 2 ? 'Please enter your name.' : ''),
   username: (v: string) =>
@@ -17,9 +22,9 @@ const VALIDATION = {
 
 type Field = keyof typeof VALIDATION;
 
-export function AuthScreen() {
+export function AuthScreen({ initialMode = 'login', onBack }: AuthScreenProps) {
   const { login, register } = useAuth();
-  const [mode, setMode] = useState<Mode>('login');
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [values, setValues] = useState({ name: '', username: '', password: '', email: '' });
   const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({});
   const [showPassword, setShowPassword] = useState(false);
@@ -89,6 +94,14 @@ export function AuthScreen() {
       </div>
 
       <div className="auth__card">
+        {onBack && (
+          <button className="auth__back" type="button" onClick={onBack}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M19 12H5M11 18l-6-6 6-6" />
+            </svg>
+            Home
+          </button>
+        )}
         <div className="auth__card-head">
           <span className="brand__mark"><LogoMark size={40} /></span>
           <h1 className="auth__title">
