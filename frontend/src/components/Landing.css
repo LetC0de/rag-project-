@@ -808,6 +808,12 @@
   color: var(--brand);
 }
 
+/* On the dusk band the title accent deepens so it holds its contrast
+   against the stronger amber wash. */
+.landing__how .landing__section-title em {
+  color: #d84b14;
+}
+
 /* ---- Features: "daylight amber" band ----
    The sun at its brightest hour. A sunlit honey wash falls across the
    section, over a warm graph-paper sheet; tangerine glows gather in the
@@ -851,10 +857,10 @@
   position: relative;
   overflow: hidden;
   background: rgba(255, 253, 249, 0.92);
-  border: 1.5px solid var(--line);
+  border: 1.5px solid #f1e3c6;
   border-radius: var(--radius-lg);
   padding: 28px 26px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 14px 30px -16px rgba(242, 84, 31, 0.18);
   transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
 }
 
@@ -923,30 +929,31 @@
   color: var(--ink-soft);
 }
 
-/* ---- How it works: the "transit route" band ----
-   A deeper dawn wash with a faint dash of violet and sky; the steps sit on
-   a dashed route that marches from card to card — a journey, not a list. */
+/* ---- How it works: "ember dusk" band ----
+   The same sun a little later — deeper, warmer, a touch of afterglow.
+   Tangerine rises from the bottom, coral pulls the corners, and the
+   journey line glows like embers along the route. */
 .landing__how {
-  border-top: 1.5px solid var(--line-soft);
-  border-bottom: 1.5px solid var(--line-soft);
+  border-top: 1.5px solid #f2ddb4;
+  border-bottom: 1.5px solid #f2ddb4;
   background:
-    radial-gradient(120% 260% at 88% 0%, rgba(255, 181, 60, 0.15), transparent 58%),
-    radial-gradient(110% 240% at 2% 100%, rgba(255, 107, 61, 0.1), transparent 55%),
-    linear-gradient(180deg, #faf6ef 0%, #f5ecdb 100%);
+    radial-gradient(130% 220% at 90% -10%, rgba(255, 181, 60, 0.3), transparent 56%),
+    radial-gradient(120% 240% at 0% 108%, rgba(255, 107, 61, 0.28), transparent 58%),
+    linear-gradient(165deg, #fff2dc 0%, #ffe3bd 52%, #ffd19b 100%);
 }
 
 .landing__how::before {
   top: -16vw; left: -10vw;
   width: 40vw; height: 40vw;
-  background: radial-gradient(circle, rgba(154, 108, 240, 0.1), transparent 60%);
-  filter: blur(34px);
+  background: radial-gradient(circle, rgba(255, 107, 61, 0.24), transparent 62%);
+  filter: blur(28px);
 }
 
 .landing__how::after {
   right: -12vw; bottom: -18vw;
   width: 44vw; height: 44vw;
-  background: radial-gradient(circle, rgba(74, 163, 232, 0.12), transparent 60%);
-  filter: blur(34px);
+  background: radial-gradient(circle, rgba(255, 181, 60, 0.3), transparent 62%);
+  filter: blur(28px);
 }
 
 .landing__how-inner {
@@ -973,7 +980,7 @@
   left: 14%;
   right: 14%;
   height: 2px;
-  background-image: repeating-linear-gradient(90deg, rgba(242, 84, 31, 0.45) 0 9px, transparent 9px 22px);
+  background-image: repeating-linear-gradient(90deg, rgba(242, 84, 31, 0.6) 0 9px, transparent 9px 22px);
   background-size: 22px 2px;
   animation: how-route 30s linear infinite;
   pointer-events: none;
@@ -986,11 +993,11 @@
 .how__step {
   position: relative;
   z-index: 1;
-  background: var(--surface);
-  border: 1.5px solid var(--line);
+  background: rgba(255, 253, 249, 0.94);
+  border: 1.5px solid #f2dcb0;
   border-radius: var(--radius-lg);
   padding: 30px 26px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 16px 34px -18px rgba(242, 84, 31, 0.24);
   transition: transform var(--transition), box-shadow var(--transition);
 }
 
@@ -1007,7 +1014,7 @@
   font-style: italic;
   font-size: 34px;
   font-weight: 600;
-  color: var(--line);
+  color: rgba(214, 116, 26, 0.28);
   line-height: 1;
 }
 
@@ -1018,19 +1025,22 @@
   width: 44px;
   height: 44px;
   border-radius: 14px;
-  background: var(--bg-deep);
+  background: #ffe9c2;
   color: var(--brand-deep);
   margin-bottom: 18px;
-  box-shadow: inset 0 0 0 1px var(--line);
-  transition: transform var(--transition);
+  box-shadow: inset 0 0 0 1px rgba(255, 181, 60, 0.5);
+  transition: transform var(--transition), background var(--transition), color var(--transition);
 }
 
 .how__step:hover .how__step-icon {
   transform: translateY(-2px);
 }
 
-.how__step:nth-child(2) .how__step-icon { color: var(--sky); background: var(--sky-soft); }
-.how__step:nth-child(3) .how__step-icon { color: var(--leaf); background: var(--leaf-soft); }
+/* Each step stays in the sun family — honey, tangerine, then coral — so the
+   ember band never strays into cool colors. */
+.how__step:nth-child(1) .how__step-icon { color: #b06000; background: #ffe2a3; }
+.how__step:nth-child(2) .how__step-icon { color: var(--brand-deep); background: #ffd1a4; }
+.how__step:nth-child(3) .how__step-icon { color: #c03009; background: #ffbfb0; }
 
 .how__step h3 {
   font-family: var(--font-display);
