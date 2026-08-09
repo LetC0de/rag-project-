@@ -855,7 +855,12 @@
   padding: 28px 26px;
   box-shadow: var(--shadow-sm);
   transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-  animation: mock-rise 0.6s ease both;
+}
+
+/* Entrance handled by the [data-reveal] observer; pull the reveal start so
+   the card (and its hairline) settle in one smooth motion. */
+.feature-card[data-reveal] {
+  transform: translateY(22px);
 }
 
 /* Card identity from the garden palette */
@@ -1266,9 +1271,16 @@
     grid-template-columns: 1fr;
   }
 
-  .landing__features,
-  .landing__how {
-    padding: 64px 18px;
+  .landing__features-inner,
+  .landing__how-inner {
+    padding: 56px 18px 64px;
+  }
+
+  /* The dashed route can't thread card-to-card once the steps stack, and
+     showing it behind opaque cards would leave stray fragments in the gaps.
+     Drop it so the single column reads like a clean vertical trail. */
+  .how__steps::before {
+    display: none;
   }
 
   .landing__section-title {
@@ -1372,9 +1384,9 @@
     padding: 44px 14px 40px;
   }
 
-  .landing__features,
-  .landing__how {
-    padding: 56px 14px;
+  .landing__features-inner,
+  .landing__how-inner {
+    padding: 48px 14px 56px;
   }
 
   .landing__section-title {
