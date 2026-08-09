@@ -808,31 +808,32 @@
   color: var(--brand);
 }
 
-/* ---- Features: the "study paper" band ----
-   A soft graph-paper sheet (documents live here) under a honey glow from
-   the top-left and a coral bloom bottom-right. */
+/* ---- Features: "daylight amber" band ----
+   The sun at its brightest hour. A sunlit honey wash falls across the
+   section, over a warm graph-paper sheet; tangerine glows gather in the
+   corners so the whole band reads unmistakably orange. */
 .landing__features {
-  border-top: 1.5px solid var(--line-soft);
-  border-bottom: 1.5px solid var(--line-soft);
+  border-top: 1.5px solid #f3dfbe;
+  border-bottom: 1.5px solid #f3dfbe;
   background:
-    radial-gradient(rgba(43, 38, 32, 0.05) 1px, transparent 1.5px) 0 0 / 26px 26px,
-    linear-gradient(180deg, rgba(255, 181, 60, 0.09), rgba(255, 253, 249, 0) 34%, rgba(255, 107, 61, 0.05));
+    radial-gradient(rgba(255, 181, 60, 0.14) 1px, transparent 1.5px) 0 0 / 26px 26px,
+    linear-gradient(115deg, rgba(255, 181, 60, 0.28) 0%, rgba(255, 196, 96, 0.16) 42%, rgba(255, 253, 249, 0.55) 72%, rgba(255, 107, 61, 0.2) 100%);
 }
 
 .landing__features::before {
   top: -22vw; left: -12vw;
   width: 48vw; height: 48vw;
   min-width: 420px; min-height: 420px;
-  background: radial-gradient(circle, rgba(255, 181, 60, 0.22), transparent 62%);
-  filter: blur(30px);
+  background: radial-gradient(circle, rgba(255, 181, 60, 0.42), transparent 62%);
+  filter: blur(26px);
 }
 
 .landing__features::after {
   right: -14vw; bottom: -18vw;
   width: 42vw; height: 42vw;
   min-width: 380px; min-height: 380px;
-  background: radial-gradient(circle, rgba(255, 107, 61, 0.16), transparent 62%);
-  filter: blur(30px);
+  background: radial-gradient(circle, rgba(255, 107, 61, 0.3), transparent 62%);
+  filter: blur(26px);
 }
 
 .features__grid {
