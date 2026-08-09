@@ -760,8 +760,31 @@
 
 /* ------------------------------------------------ Sections */
 
+/* Both feature bands are full-bleed atmospheric "chapters" — each carries
+   its own wash of the garden. The inner containers keep content aligned to
+   the measure and do the actual vertical rhythm. */
+
 .landing__features,
 .landing__how {
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+/* Ambient glows pinned to each region (cropped by the section's overflow
+   so they never bleed into a scrollbar on small screens). */
+.landing__features::before,
+.landing__features::after,
+.landing__how::before,
+.landing__how::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+
+.landing__features-inner,
+.landing__how-inner {
   position: relative;
   z-index: 1;
   max-width: 1200px;
@@ -785,14 +808,48 @@
   color: var(--brand);
 }
 
+/* ---- Features: the "study paper" band ----
+   A soft graph-paper sheet (documents live here) under a honey glow from
+   the top-left and a coral bloom bottom-right. */
+.landing__features {
+  border-top: 1.5px solid var(--line-soft);
+  border-bottom: 1.5px solid var(--line-soft);
+  background:
+    radial-gradient(rgba(43, 38, 32, 0.05) 1px, transparent 1.5px) 0 0 / 26px 26px,
+    linear-gradient(180deg, rgba(255, 181, 60, 0.09), rgba(255, 253, 249, 0) 34%, rgba(255, 107, 61, 0.05));
+}
+
+.landing__features::before {
+  top: -22vw; left: -12vw;
+  width: 48vw; height: 48vw;
+  min-width: 420px; min-height: 420px;
+  background: radial-gradient(circle, rgba(255, 181, 60, 0.22), transparent 62%);
+  filter: blur(30px);
+}
+
+.landing__features::after {
+  right: -14vw; bottom: -18vw;
+  width: 42vw; height: 42vw;
+  min-width: 380px; min-height: 380px;
+  background: radial-gradient(circle, rgba(255, 107, 61, 0.16), transparent 62%);
+  filter: blur(30px);
+}
+
 .features__grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
 
 .feature-card {
-  background: var(--surface);
+  --card-accent: var(--brand);
+  --icon-bg: rgba(255, 107, 61, 0.14);
+  --icon-fg: var(--brand-deep);
+  position: relative;
+  overflow: hidden;
+  background: rgba(255, 253, 249, 0.92);
   border: 1.5px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 28px 26px;
@@ -801,10 +858,31 @@
   animation: mock-rise 0.6s ease both;
 }
 
+/* Card identity from the garden palette */
+.feature-card:nth-child(2) { --card-accent: var(--sun); --icon-bg: rgba(255, 181, 60, 0.18); --icon-fg: #a86808; }
+.feature-card:nth-child(3) { --card-accent: var(--leaf); --icon-bg: rgba(47, 174, 107, 0.16); --icon-fg: #16713f; }
+
+/* Colored hairline along each card's top edge */
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  height: 3px;
+  border-radius: 0 0 5px 5px;
+  background: linear-gradient(90deg, var(--card-accent), transparent);
+  opacity: 0.65;
+}
+
 .feature-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
   box-shadow: var(--shadow-md);
-  border-color: var(--line);
+  border-color: color-mix(in srgb, var(--card-accent) 40%, var(--line));
+}
+
+.feature-card:active {
+  transform: translateY(-2px);
 }
 
 .feature-card__icon {
@@ -814,13 +892,15 @@
   width: 42px;
   height: 42px;
   border-radius: 13px;
-  background: var(--brand-glow);
-  color: var(--brand-deep);
+  background: var(--icon-bg);
+  color: var(--icon-fg);
   margin-bottom: 18px;
+  transition: transform var(--transition);
 }
 
-.feature-card:nth-child(2) .feature-card__icon { background: var(--sun-soft); color: #a86808; }
-.feature-card:nth-child(3) .feature-card__icon { background: var(--leaf-soft); color: var(--leaf); }
+.feature-card:hover .feature-card__icon {
+  transform: translateY(-1px) rotate(-3deg);
+}
 
 .feature-card__title {
   font-family: var(--font-display);
@@ -837,29 +917,80 @@
   color: var(--ink-soft);
 }
 
-/* ------------------------------------------------ How */
-
+/* ---- How it works: the "transit route" band ----
+   A deeper dawn wash with a faint dash of violet and sky; the steps sit on
+   a dashed route that marches from card to card — a journey, not a list. */
 .landing__how {
-  padding-top: 40px;
+  border-top: 1.5px solid var(--line-soft);
+  border-bottom: 1.5px solid var(--line-soft);
+  background:
+    radial-gradient(120% 260% at 88% 0%, rgba(255, 181, 60, 0.15), transparent 58%),
+    radial-gradient(110% 240% at 2% 100%, rgba(255, 107, 61, 0.1), transparent 55%),
+    linear-gradient(180deg, #faf6ef 0%, #f5ecdb 100%);
+}
+
+.landing__how::before {
+  top: -16vw; left: -10vw;
+  width: 40vw; height: 40vw;
+  background: radial-gradient(circle, rgba(154, 108, 240, 0.1), transparent 60%);
+  filter: blur(34px);
+}
+
+.landing__how::after {
+  right: -12vw; bottom: -18vw;
+  width: 44vw; height: 44vw;
+  background: radial-gradient(circle, rgba(74, 163, 232, 0.12), transparent 60%);
+  filter: blur(34px);
+}
+
+.landing__how-inner {
+  padding-top: 84px;
+  padding-bottom: 108px;
 }
 
 .how__steps {
   list-style: none;
   margin: 0;
   padding: 0;
+  position: relative;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  counter-reset: how;
+}
+
+/* Dashed journey line threaded between the cards — it marches slowly so
+   the band feels alive but never distractingly busy. */
+.how__steps::before {
+  content: '';
+  position: absolute;
+  top: 54px;
+  left: 14%;
+  right: 14%;
+  height: 2px;
+  background-image: repeating-linear-gradient(90deg, rgba(242, 84, 31, 0.45) 0 9px, transparent 9px 22px);
+  background-size: 22px 2px;
+  animation: how-route 30s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes how-route {
+  to { background-position-x: 22px; }
 }
 
 .how__step {
   position: relative;
+  z-index: 1;
   background: var(--surface);
   border: 1.5px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 30px 26px;
   box-shadow: var(--shadow-sm);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.how__step:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
 }
 
 .how__step-num {
@@ -885,6 +1016,11 @@
   color: var(--brand-deep);
   margin-bottom: 18px;
   box-shadow: inset 0 0 0 1px var(--line);
+  transition: transform var(--transition);
+}
+
+.how__step:hover .how__step-icon {
+  transform: translateY(-2px);
 }
 
 .how__step:nth-child(2) .how__step-icon { color: var(--sky); background: var(--sky-soft); }
