@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LogoMark, SparkIcon, FileIcon, UploadIcon, CheckIcon, PlusIcon } from './Icons';
 import './Landing.css';
 
@@ -75,7 +75,46 @@ function StepIcon({ name }: { name: string }) {
   );
 }
 
+// The mock answer text that types itself on page load.
+const MOCK_ANSWER =
+  'Revenue grew 22% year over year to $4.2M, driven by enterprise renewals and a strong Q3. Gross margin held at 71%, and the board noted an encouraging shift toward annual contracts.';
+
 export function Landing({ onLogin, onRegister }: LandingProps) {
+  const [typed, setTyped] = useState('');
+  const [showSources, setShowSources] = useState(false);
+  const [mockReady, setMockReady] = useState(false);
+  const timerRef = useRef<number | undefined>(undefined);
+
+  // Typewriter: after a brief delay, type the mock answer character by character.
+  useEffect(() => {
+    // Small delay so the hero entrance lands before the mock starts typing.
+    const delay = window.setTimeout(() => setMockReady(true), 600);
+    return () => window.clearTimeout(delay);
+  }, []);
+
+  useEffect(() => {
+    if (!mockReady) return;
+    let i = 0;
+    // Small pause before typing starts.
+    timerRef.current = window.setTimeout(() => {
+      const step = () => {
+        i += 2;
+        if (i < MOCK_ANSWER.length) {
+          setTyped(MOCK_ANSWER.slice(0, i));
+          timerRef.current = window.setTimeout(step, 18);
+        } else {
+          setTyped(MOCK_ANSWER);
+          // Brief pause, then reveal the citation chips.
+          timerRef.current = window.setTimeout(() => setShowSources(true), 300);
+        }
+      };
+      step();
+    }, 400);
+    return () => {
+      window.clearTimeout(timerRef.current);
+    };
+  }, [mockReady]);
+
   // Reveal-on-scroll: [data-reveal] elements fade up once as they enter view.
   useEffect(() => {
     const els = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
@@ -155,9 +194,9 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
               </p>
             </div>
 
-            {/* A quiet, static product example — no animation. A tab bar with
-                the open file (icon + name + format chip), then the standard
-                upload → ask → cited-answer thread. */}
+            {/* A product example with a typewriter effect. The mock answer
+                types itself on load, then source chips appear. Tab bar shows
+                the open file name + format chip. */}
             <figure className="hero__mock" aria-label="Quill example: a question and its cited answer.">
               <div className="mock__bar">
                 <div className="mock__tabs">
@@ -179,14 +218,19 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
                 <div className="mock__msg mock__msg--ai">
                   <span className="mock__avatar"><LogoMark size={18} /></span>
                   <div className="mock__bubble">
-                    <p><strong>Revenue up 22%</strong> — revenue grew 22% year over year to $4.2M,
-                      driven by enterprise renewals and a strong Q3. Gross margin held at 71%,
-                      and the board noted an encouraging shift toward annual contracts.</p>
-                    <div className="mock__sources">
-                      <span className="mock__src">p. 3</span>
-                      <span className="mock__src">p. 7</span>
-                      <span className="mock__src">p. 12</span>
-                    </div>
+                    <p>
+                      <strong>Revenue up 22%</strong> — {typed}
+                      {typed.length < MOCK_ANSWER.length && (
+                        <span className="mock__caret" aria-hidden="true" />
+                      )}
+                    </p>
+                    {showSources && (
+                      <div className="mock__sources">
+                        <span className="mock__src">p. 3</span>
+                        <span className="mock__src">p. 7</span>
+                        <span className="mock__src">p. 12</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
