@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { LogoMark, SparkIcon, FileIcon, UploadIcon, CheckIcon } from './Icons';
+import { LogoMark, SparkIcon, FileIcon, UploadIcon, CheckIcon, PlusIcon } from './Icons';
 import './Landing.css';
 
 export interface LandingProps {
@@ -122,7 +122,7 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
         <section className="landing__hero">
           <div className="landing__hero-inner">
             <div className="hero__copy">
-              <p className="hero__eyebrow">Quill · Document Q&amp;A</p>
+              <p className="eyebrow">Document Q&amp;A</p>
 
               <h1 className="hero__title">
                 Chat with your documents.
@@ -148,11 +148,21 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
               </p>
             </div>
 
-            {/* A quiet, static product example — no animation, just the
-                upload → ask → cited-answer shape the product actually has. */}
+            {/* A quiet, static product example — no animation. A tab bar with
+                the open file (icon + name + format chip), then the standard
+                upload → ask → cited-answer thread. */}
             <figure className="hero__mock" aria-label="Quill example: a question and its cited answer.">
               <div className="mock__bar">
-                <span className="mock__doc"><FileIcon size={14} /> Annual_Report.pdf</span>
+                <div className="mock__tabs">
+                  <span className="mock__tab mock__tab--active">
+                    <FileIcon size={15} />
+                    <span className="mock__tab-name">Annual_Report</span>
+                    <span className="mock__tab-chip">PDF</span>
+                  </span>
+                  <span className="mock__tab mock__tab--add" aria-hidden="true">
+                    <PlusIcon size={14} />
+                  </span>
+                </div>
                 <span className="mock__meta">24 pages · indexed</span>
               </div>
               <div className="mock__thread">
@@ -162,11 +172,13 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
                 <div className="mock__msg mock__msg--ai">
                   <span className="mock__avatar"><LogoMark size={18} /></span>
                   <div className="mock__bubble">
-                    <p><strong>Revenue grew 22%</strong> year over year to $4.2M, driven by
-                      enterprise renewals and a strong Q3.</p>
+                    <p><strong>Revenue up 22%</strong> — revenue grew 22% year over year to $4.2M,
+                      driven by enterprise renewals and a strong Q3. Gross margin held at 71%,
+                      and the board noted an encouraging shift toward annual contracts.</p>
                     <div className="mock__sources">
                       <span className="mock__src">p. 3</span>
                       <span className="mock__src">p. 7</span>
+                      <span className="mock__src">p. 12</span>
                     </div>
                   </div>
                 </div>
@@ -188,7 +200,7 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
         {/* ---------- Features ---------- */}
         <section className="landing__section" id="features">
           <div className="landing__section-head" data-reveal>
-            <p className="hero__eyebrow">Features</p>
+            <p className="eyebrow">Features</p>
             <h2 className="landing__title">Answers you can trust — and verify.</h2>
             <p className="landing__lede">
               Quill builds on retrieval-augmented generation: your files stay yours, and every
@@ -212,7 +224,7 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
         {/* ---------- How it works ---------- */}
         <section className="landing__section landing__section--alt" id="how">
           <div className="landing__section-head" data-reveal>
-            <p className="hero__eyebrow">How it works</p>
+            <p className="eyebrow">How it works</p>
             <h2 className="landing__title">From upload to answer, in three steps.</h2>
           </div>
 
