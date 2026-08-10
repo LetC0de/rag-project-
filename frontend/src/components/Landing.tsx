@@ -43,7 +43,14 @@ const STEPS = [
   },
 ];
 
-const FORMATS = ['PDF', 'DOCX', 'PPTX', 'TXT', 'Markdown'];
+// File formats Quill accepts, each with a recognizable accent color.
+const FORMATS = [
+  { label: 'PDF', color: '#ff6b3d' },
+  { label: 'DOCX', color: '#4aa3e8' },
+  { label: 'PPTX', color: '#ffae42' },
+  { label: 'TXT', color: '#6f6658' },
+  { label: 'Markdown', color: '#9a6cf0' },
+];
 
 function FeatureIcon({ name }: { name: string }) {
   if (name === 'lock') {
@@ -192,7 +199,10 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
           <div className="landing__formats-inner">
             <span className="landing__formats-label">Works with</span>
             {FORMATS.map((f) => (
-              <span className="landing__format" key={f}>{f}</span>
+              <span className="landing__format" key={f.label}>
+                <i style={{ background: f.color }} aria-hidden="true" />
+                {f.label}
+              </span>
             ))}
           </div>
         </div>

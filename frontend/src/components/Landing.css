@@ -448,12 +448,12 @@
 .landing__formats-inner {
   max-width: 1240px;
   margin: 0 auto;
-  padding: 24px 36px;
+  padding: 26px 36px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 12px 32px;
+  gap: 14px 18px;
 }
 
 .landing__formats-label {
@@ -462,23 +462,38 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-faint);
+  margin-right: 10px;
 }
 
+/* Each format is a tappable-looking chip with a soft tinted ground,
+   an accent color-dot, and room between chips. */
 .landing__format {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 15px;
+  gap: 9px;
+  height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 1px 2px rgba(80, 60, 30, 0.05);
+  font-size: 14.5px;
   font-weight: 600;
   color: var(--ink-soft);
+  transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
 }
 
-.landing__format::before {
-  content: '';
-  width: 5px;
-  height: 5px;
+.landing__format i {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--sun);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.04);
+}
+
+.landing__format:hover {
+  border-color: var(--ink-faint);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 /* ------------------------------------------------ Sections */
