@@ -297,7 +297,7 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
         {/* ---------- Final CTA ---------- */}
         <section className="landing__cta">
           <div className="landing__cta-inner" data-reveal>
-            <p className="hero__eyebrow landing__cta-eyebrow">Quill</p>
+            <p className="eyebrow landing__cta-eyebrow">Quill</p>
             <h2 className="landing__cta-title">Start chatting with your files.</h2>
             <p className="landing__cta-sub">Create a free account and get cited answers in under a minute.</p>
             <button className="btn btn--primary landing__cta-btn" type="button" onClick={onRegister}>

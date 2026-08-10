@@ -97,11 +97,6 @@ body {
   height: 100%;
   overflow: hidden;
 }
-@media (max-width: 860px) {
-  .app {
-    overflow: hidden;
-  }
-}
 
 /* Anchor jumps land with breathing room instead of hugging the sticky nav. */
 html {
