@@ -452,8 +452,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
-  gap: 14px 18px;
+  justify-content: space-between;
+  gap: 16px 24px;
 }
 
 .landing__formats-label {
