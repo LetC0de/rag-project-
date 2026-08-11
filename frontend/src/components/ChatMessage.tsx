@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import type { ChatMessage } from '../lib/types';
 import { initialsFromFilename } from '../lib/palette';
 import { Markdown } from '../lib/markdown';
@@ -14,45 +14,14 @@ interface ChatMessageProps {
   onStreamingDone?: () => void;
 }
 
-export function ChatMessageView({ message, documentName, isLast, onCopy, onRegenerate, onRetry, onStreamingDone }: ChatMessageProps) {
+export function ChatMessageView({ message, documentName, isLast, onCopy, onRegenerate, onRetry, onStreamingDone: _onStreamingDone }: ChatMessageProps) {
   const sources = message.sources ?? [];
-  const [revealed, setRevealed] = useState(message.content.length);
   const [copied, setCopied] = useState(false);
-  const frame = useRef<number | null>(null);
-  const doneRef = useRef(false);
-  const onDoneRef = useRef(onStreamingDone);
-  onDoneRef.current = onStreamingDone;
-
-  // Typewriter reveal for the latest assistant answer only.
-  useEffect(() => {
-    if (!message.streaming) {
-      setRevealed(message.content.length);
-      return;
-    }
-    doneRef.current = false;
-    setRevealed(0);
-    let i = 0;
-    const step = () => {
-      i += 3;
-      if (i < message.content.length) {
-        setRevealed(i);
-        frame.current = requestAnimationFrame(step);
-      } else {
-        setRevealed(message.content.length);
-        if (!doneRef.current) {
-          doneRef.current = true;
-          onDoneRef.current?.();
-        }
-      }
-    };
-    frame.current = requestAnimationFrame(step);
-    return () => {
-      if (frame.current) cancelAnimationFrame(frame.current);
-    };
-  }, [message.streaming, message.content]);
 
   const isUser = message.role === 'user';
-  const fullShown = revealed >= message.content.length;
+  // With real streaming the answer grows as SSE tokens arrive, so the message
+  // is "full" only once the backend signals done.
+  const fullShown = !message.streaming;
 
   const handleCopy = () => {
     onCopy(message.content);
@@ -75,11 +44,7 @@ export function ChatMessageView({ message, documentName, isLast, onCopy, onRegen
           <div className="msg__bubble">{message.content}</div>
         ) : (
           <div className="msg__answer">
-            {message.streaming && !fullShown ? (
-              <Markdown text={message.content.slice(0, revealed)} />
-            ) : (
-              <Markdown text={message.content} />
-            )}
+            <Markdown text={message.content} />
 
             {message.streaming && !fullShown && (
               <span className="msg__caret" aria-hidden="true" />

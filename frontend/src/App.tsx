@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { askQuestion, deleteDocument, listDocuments } from './lib/api';
+import { askQuestionStream, deleteDocument, listDocuments } from './lib/api';
 import { useAuth } from './lib/auth';
 import type { ChatMessage, Document } from './lib/types';
 import { Sidebar } from './components/Sidebar';
@@ -163,16 +163,48 @@ export default function App() {
         : { question: text };
 
       try {
-        const res = await askQuestion(payload);
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantMsg.id
-              ? { ...m, content: res.answer, sources: res.sources, streaming: true }
-              : m
-          )
+        // Stream the answer: sources arrive first (citation chips), then the
+        // answer text token-by-token as SSE `token` events, then a final `done`.
+        await askQuestionStream(
+          payload,
+          {
+            onSources: (sources) => {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantMsg.id ? { ...m, sources } : m
+                )
+              );
+            },
+            onDelta: (delta) => {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantMsg.id ? { ...m, content: m.content + delta } : m
+                )
+              );
+            },
+            onDone: () => {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantMsg.id ? { ...m, streaming: false } : m
+                )
+              );
+            },
+            onError: (message) => {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantMsg.id
+                    ? { ...m, streaming: false, error: true, content: m.content || message }
+                    : m
+                )
+              );
+            },
+          },
+          controller.signal
         );
-        // The ChatMessageView typewriter calls onStreamingDone when it finishes.
       } catch (e) {
+        // Only a thrown error reaches here (e.g. network failure before the
+        // stream opened). Aborts from the Stop button surface via onError
+        // suppression inside the reader, not this catch.
         const msg = e instanceof Error ? e.message : 'Request failed';
         setMessages((prev) =>
           prev.map((m) =>

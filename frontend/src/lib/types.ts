@@ -48,6 +48,15 @@ export interface SourceRef {
   filename?: string;
 }
 
+// Payload carried by each Server-Sent Events frame from /chat/query.
+// The backend emits `sources`, then many `token`, then a `done` event.
+export interface SSEEventData {
+  document_id?: number;
+  sources?: SourceRef[];
+  delta?: string;
+  message?: string;
+}
+
 export type MessageRole = 'user' | 'assistant';
 
 export interface ChatMessage {
