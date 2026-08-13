@@ -10,6 +10,12 @@ class ConversationCreateSchema(BaseModel):
     title: Optional[str] = Field(default="New Chat", max_length=200)
 
 
+class ConversationRenameSchema(BaseModel):
+    """Body for PATCH /conversations/{id} — manual rename of a generated title."""
+
+    title: str = Field(..., min_length=1, max_length=200)
+
+
 class ConversationOutSchema(BaseModel):
     """Conversation returned to the client.
 

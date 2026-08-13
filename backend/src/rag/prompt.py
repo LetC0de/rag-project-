@@ -82,3 +82,30 @@ source page after each fact you take from the document, e.g. "[Page 3]".
         )
     ]
 )
+
+
+# Used to auto-name a conversation after its first question, ChatGPT-style. Kept
+# tight and deterministic so titles are short, clean, and never leak answer text.
+title_prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """You generate short, descriptive titles for chat conversations about documents.
+
+From the user's FIRST message, produce a title that names the topic they are asking about.
+
+Rules:
+- 2 to 6 words, title case (e.g. "Maternity Leave Eligibility").
+- No quotation marks, no trailing punctuation, no period at the end.
+- Describe the subject or intent, not the question wording.
+- Do NOT answer the question and do NOT summarize the document.
+- If the message is vague or off-topic (greetings, "hi", "thanks"), reply with exactly: General Chat
+- Output ONLY the title, with no preamble or explanation.
+""",
+        ),
+        (
+            "human",
+            "Conversation's first message: {question}",
+        ),
+    ]
+)

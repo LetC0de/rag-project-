@@ -623,6 +623,57 @@
   pointer-events: none;
 }
 
+/* Pencil edit affordance: hidden until the row is hovered/focused/active, then
+   fades in next to the chat icon so renaming is always a click away without
+   cluttering a long list. */
+.convo-item__rename-btn {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  margin: auto 2px;
+  margin-right: 0;
+  border-radius: 10px;
+  color: var(--ink-faint);
+  background: transparent;
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition), background var(--transition);
+}
+
+.convo-item:hover .convo-item__rename-btn,
+.convo-item:focus-within .convo-item__rename-btn,
+.convo-item--active .convo-item__rename-btn {
+  opacity: 0.85;
+}
+
+.convo-item__rename-btn:hover {
+  color: var(--berry);
+  background: var(--berry-soft);
+  opacity: 1;
+}
+
+/* Inline title editor replaces the row's main button while renaming. */
+.convo-item__rename {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 4px 2px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1.5px solid var(--berry);
+  background: #fff;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: inherit;
+  box-shadow: 0 2px 8px -3px rgba(227, 79, 143, 0.4);
+  outline: none;
+}
+
+.convo-item__rename:focus {
+  border-color: var(--brand);
+}
+
 .convo-item__spinner {
   position: absolute;
   left: 10px;

@@ -7,6 +7,7 @@ from src.conversation.controller import (
     get_conversation_messages,
     get_owned_conversation,
     list_conversations,
+    rename_conversation,
 )
 from src.conversation.model import ConversationModel
 from src.conversation.schema import (
@@ -14,6 +15,7 @@ from src.conversation.schema import (
     ConversationListSchema,
     ConversationMessagesSchema,
     ConversationOutSchema,
+    ConversationRenameSchema,
 )
 from src.user.model import UserModel
 from src.utils.db import get_db
@@ -83,6 +85,20 @@ async def get_conversation_message_history(
             {"role": m["role"], "content": m["content"]} for m in raw
         ],
     )
+
+
+@conversation_router.patch("/{conversation_id}", response_model=ConversationOutSchema)
+async def rename_existing_conversation(
+    conversation_id: int,
+    body: ConversationRenameSchema,
+    user: UserModel = Depends(is_authenticated),
+    db: Session = Depends(get_db),
+):
+    """Rename a conversation's title (manual override of an auto-generated one).
+
+    Ownership is enforced by the controller; a missing or not-yours conversation
+    yields 404 with no existence leak."""
+    return rename_conversation(conversation_id, body.title, user, db)
 
 
 @conversation_router.delete("/{conversation_id}")

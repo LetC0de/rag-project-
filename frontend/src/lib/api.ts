@@ -135,11 +135,12 @@ export function askQuestionStream(
     onSources: (sources: SourceRef[]) => void;
     onDelta: (delta: string) => void;
     onDone: (documentId?: number) => void;
+    onTitle?: (title: string) => void;
     onError: (message: string) => void;
   },
   signal?: AbortSignal,
 ): Promise<void> {
-  const { onSources, onDelta, onDone, onError } = callbacks;
+  const { onSources, onDelta, onDone, onTitle, onError } = callbacks;
 
   return fetch(`${BASE}/chat/query`, {
     method: 'POST',
@@ -160,7 +161,7 @@ export function askQuestionStream(
       onError(detail || `Request failed (${res.status})`);
       return;
     }
-    await readSSEStream(res, onSources, onDelta, onDone, onError, signal);
+    await readSSEStream(res, onSources, onDelta, onDone, onTitle, onError, signal);
   });
 }
 
@@ -170,6 +171,7 @@ async function readSSEStream(
   onSources: (sources: SourceRef[]) => void,
   onDelta: (delta: string) => void,
   onDone: (documentId?: number) => void,
+  onTitle: ((title: string) => void) | undefined,
   onError: (message: string) => void,
   signal?: AbortSignal,
 ): Promise<void> {
@@ -188,6 +190,7 @@ async function readSSEStream(
       if (eventName === 'sources') onSources(data.sources ?? []);
       else if (eventName === 'token') onDelta(data.delta ?? '');
       else if (eventName === 'done') onDone(data.document_id);
+      else if (eventName === 'title') onTitle?.(data.title ?? '');
       else if (eventName === 'error') onError(data.message ?? 'Stream error');
     } catch {
       onError('Malformed stream response');
@@ -262,6 +265,15 @@ export async function deleteConversation(id: number): Promise<void> {
     headers: authHeaders(),
   });
   await handle<unknown>(res);
+}
+
+export async function renameConversation(id: number, title: string): Promise<Conversation> {
+  const res = await fetch(`${BASE}/conversations/${id}`, {
+    method: 'PATCH',
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ title }),
+  });
+  return handle<Conversation>(res);
 }
 
 export async function getConversationMessages(id: number): Promise<ConversationMessage[]> {

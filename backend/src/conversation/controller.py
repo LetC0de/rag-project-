@@ -61,6 +61,15 @@ def touch(conversation_id: int, user: UserModel, db: Session) -> None:
     db.commit()
 
 
+def rename_conversation(conversation_id: int, title: str, user: UserModel, db: Session) -> ConversationModel:
+    """Apply a user-supplied title (manual rename over a generated one)."""
+    conversation = get_owned_conversation(conversation_id, user, db)
+    conversation.title = title.strip()
+    db.commit()
+    db.refresh(conversation)
+    return conversation
+
+
 async def get_conversation_messages(
     conversation_id: int, user: UserModel, db: Session
 ) -> list[dict]:

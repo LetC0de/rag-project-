@@ -46,11 +46,13 @@ from langchain_core.messages import (
     HumanMessage,
     SystemMessage,
 )
+from sqlalchemy.orm import Session
 
+from src.conversation.model import ConversationModel
 from src.graph.checkpointer import make_thread_id
 from src.graph.graph import get_compiled_graph
 from src.query.schema import QueryRequestSchema
-from src.rag.llm import llm
+from src.rag.llm import generate_title, llm
 from src.rag.prompt import concierge_prompt, prompt
 from src.rag.retriever import get_retriever
 from src.user.model import UserModel
@@ -126,6 +128,7 @@ def _history_to_lc_messages(messages: list[BaseMessage]) -> list[BaseMessage]:
 async def stream_question(
     request: QueryRequestSchema,
     user: UserModel,
+    db: Session | None = None,
 ) -> AsyncIterator[str]:
     """SSE generator for /chat/query.
 
@@ -222,6 +225,16 @@ async def stream_question(
             document_id=request.document_id,
         )
 
+        # ----- Generate a ChatGPT-style title from the FIRST question only -----
+        # Runs AFTER the answer stream so it never delays the response. We only
+        # rename when the conversation is still on its default title, so later
+        # messages never overwrite an established name. Best-effort: failures are
+        # swallowed and the original title stays put.
+        if db is not None and (
+            title := await _maybe_generate_title(request, user, db)
+        ):
+            yield _sse("title", {"title": title})
+
     except Exception as exc:
         print(traceback.format_exc())
         yield _sse("error", {"message": "The model failed while generating a response. Please try again."})
@@ -234,8 +247,39 @@ async def stream_question(
             pass
 
 
+async def _maybe_generate_title(
+    request: QueryRequestSchema,
+    user: UserModel,
+    db: Session,
+) -> str | None:
+    """Return a new title for the conversation, or None to keep the current one.
+
+    Generates only when the conversation is still on its default "New Chat"
+    title — so the name is set once from the user's first message and never
+    churned by later turns. Returns None (no rename) when the title was already
+    customised (including manual renames) or generation fails.
+    """
+    conversation = (
+        db.query(ConversationModel)
+        .filter(
+            ConversationModel.id == request.conversation_id,
+            ConversationModel.user_id == user.id,
+        )
+        .first()
+    )
+    if conversation is None or conversation.title != "New Chat":
+        return None
+
+    title = await generate_title(request.question)
+    if not title:
+        return None
+
+    conversation.title = title
+    db.commit()
+    return title
+
+
 async def _checkpoint(
-    *,
     thread_id: str,
     user: UserModel,
     question: str,

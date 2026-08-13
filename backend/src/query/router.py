@@ -67,7 +67,7 @@ async def query(
     touch(request.conversation_id, user, db)
 
     return StreamingResponse(
-        stream_question(request, user),
+        stream_question(request, user, db),
         media_type="text/event-stream",
         headers={
             "Cache-Control": "no-cache",

@@ -70,11 +70,14 @@ export interface SourceRef {
 
 // Payload carried by each Server-Sent Events frame from /chat/query.
 // The backend emits `sources`, then many `token`, then a `done` event.
+// A `title` event arrives once (after streaming) when the conversation name
+// was auto-generated from the first question.
 export interface SSEEventData {
   document_id?: number;
   sources?: SourceRef[];
   delta?: string;
   message?: string;
+  title?: string;
 }
 
 export type MessageRole = 'user' | 'assistant';

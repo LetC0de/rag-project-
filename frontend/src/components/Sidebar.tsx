@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Conversation, Document, User } from '../lib/types';
 import { docColor, formatDate, formatTime, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { LogoMark, NewChatIcon, TrashIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon, FileIcon, HistoryIcon, ChatIcon } from './Icons';
+import { LogoMark, NewChatIcon, TrashIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon, FileIcon, HistoryIcon, ChatIcon, PencilIcon } from './Icons';
 
 interface SidebarProps {
   documents: Document[];
@@ -16,6 +16,7 @@ interface SidebarProps {
   onNewChat: () => void;
   onDelete: (id: number) => Promise<void>;
   onDeleteConversation: (id: number) => Promise<void>;
+  onRenameConversation: (id: number, title: string) => Promise<void>;
   onClose: () => void;
   onExpand: () => void;
   isMobile: boolean;
@@ -36,6 +37,7 @@ export function Sidebar({
   onNewChat,
   onDelete,
   onDeleteConversation,
+  onRenameConversation,
   onClose,
   onExpand,
   isMobile,
@@ -83,6 +85,37 @@ export function Sidebar({
     } else {
       setConfirmConvoId(convo.conversation_id);
       convoTimer.current = window.setTimeout(() => setConfirmConvoId(null), 3500);
+    }
+  };
+
+  // Inline rename: one conversation is in "editing" mode at a time. The title is
+  // committed via PATCH /conversations/{id} on Enter / blur, and cancelled on Esc.
+  const [renamingId, setRenamingId] = useState<number | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const renameInputRef = useRef<HTMLInputElement | null>(null);
+
+  const startRename = (convo: Conversation) => {
+    setRenamingId(convo.conversation_id);
+    setRenameValue(convo.title);
+    setConfirmConvoId(null);
+    // Focus + select after the input mounts.
+    requestAnimationFrame(() => renameInputRef.current?.select());
+  };
+
+  const commitRename = async (id: number) => {
+    const title = renameValue.trim();
+    if (!title) {
+      setRenamingId(null);
+      return;
+    }
+    const target = conversations.find((c) => c.conversation_id === id);
+    setRenamingId(null);
+    // Skip the round-trip if nothing actually changed.
+    if (target && target.title === title) return;
+    try {
+      await onRenameConversation(id, title);
+    } catch {
+      /* keep the local title; the failure toast is surfaced by App */
     }
   };
 
@@ -240,36 +273,66 @@ export function Sidebar({
               const active = convo.conversation_id === activeConversationId;
               const isConfirming = confirmConvoId === convo.conversation_id;
               const isDeleting = deletingConvoId === convo.conversation_id;
+              const isRenaming = renamingId === convo.conversation_id;
               return (
                 <div
                   key={convo.conversation_id}
-                  className={`convo-item ${active ? 'convo-item--active' : ''}`}
+                  className={`convo-item ${active ? 'convo-item--active' : ''} ${isRenaming ? 'convo-item--renaming' : ''}`}
                 >
-                  <button
-                    className="convo-item__main"
-                    onClick={() => onSelectConversation(convo.conversation_id)}
-                    title={convo.title}
-                  >
-                    <span className="convo-item__icon">
-                      <ChatIcon size={15} />
-                    </span>
-                    <span className="convo-item__meta">
-                      <span className="convo-item__name">{convo.title}</span>
-                      <span className="convo-item__sub">{formatTime(convo.updated_at)}</span>
-                    </span>
-                  </button>
+                  {isRenaming ? (
+                    <input
+                      ref={renameInputRef}
+                      className="convo-item__rename"
+                      value={renameValue}
+                      maxLength={200}
+                      onChange={(e) => setRenameValue(e.target.value)}
+                      onBlur={() => commitRename(convo.conversation_id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') commitRename(convo.conversation_id);
+                        else if (e.key === 'Escape') setRenamingId(null);
+                      }}
+                      aria-label="Rename conversation"
+                    />
+                  ) : (
+                    <button
+                      className="convo-item__main"
+                      onClick={() => onSelectConversation(convo.conversation_id)}
+                      title={convo.title}
+                    >
+                      <span className="convo-item__icon">
+                        <ChatIcon size={15} />
+                      </span>
+                      <span className="convo-item__meta">
+                        <span className="convo-item__name">{convo.title}</span>
+                        <span className="convo-item__sub">{formatTime(convo.updated_at)}</span>
+                      </span>
+                    </button>
+                  )}
 
-                  <button
-                    className={`convo-item__del ${isConfirming ? 'convo-item__del--confirm' : ''} ${isDeleting ? 'convo-item__del--busy' : ''}`}
-                    onClick={() => handleDeleteConversation(convo)}
-                    disabled={isDeleting}
-                    title={isConfirming ? 'Click again to confirm' : 'Delete conversation'}
-                    aria-label={`Delete ${convo.title}`}
-                  >
-                    <TrashIcon size={14} />
-                    {isConfirming && <span className="doc-item__confirm">Sure?</span>}
-                  </button>
-                  {active && loadingMessages && (
+                  {!isRenaming && (
+                    <button
+                      className="convo-item__rename-btn"
+                      onClick={() => startRename(convo)}
+                      title="Rename conversation"
+                      aria-label={`Rename ${convo.title}`}
+                    >
+                      <PencilIcon size={13} />
+                    </button>
+                  )}
+
+                  {!isRenaming && (
+                    <button
+                      className={`convo-item__del ${isConfirming ? 'convo-item__del--confirm' : ''} ${isDeleting ? 'convo-item__del--busy' : ''}`}
+                      onClick={() => handleDeleteConversation(convo)}
+                      disabled={isDeleting}
+                      title={isConfirming ? 'Click again to confirm' : 'Delete conversation'}
+                      aria-label={`Delete ${convo.title}`}
+                    >
+                      <TrashIcon size={14} />
+                      {isConfirming && <span className="doc-item__confirm">Sure?</span>}
+                    </button>
+                  )}
+                  {active && loadingMessages && !isRenaming && (
                     <span className="convo-item__spinner" aria-hidden="true" />
                   )}
                 </div>

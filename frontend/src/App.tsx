@@ -7,6 +7,7 @@ import {
   getConversationMessages,
   listConversations,
   listDocuments,
+  renameConversation,
 } from './lib/api';
 import { useAuth } from './lib/auth';
 import type { ChatMessage, Conversation, ConversationMessage, Document } from './lib/types';
@@ -230,6 +231,24 @@ export default function App() {
     }
   };
 
+  const handleRenameConversation = async (id: number, title: string) => {
+    // Optimistically update the sidebar so the rename feels instant, then persist.
+    setConversations((prev) =>
+      prev.map((c) => (c.conversation_id === id ? { ...c, title } : c))
+    );
+    try {
+      const updated = await renameConversation(id, title);
+      // Reconcile with the server value (trims, length clamp, etc.).
+      setConversations((prev) =>
+        prev.map((c) => (c.conversation_id === id ? { ...c, ...updated } : c))
+      );
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : 'Could not rename conversation.');
+      // Revert on failure so the UI matches the server.
+      void refreshConversations();
+    }
+  };
+
   const handleUploaded = async () => {
     setUploadOpen(false);
     await refreshDocuments();
@@ -253,6 +272,13 @@ export default function App() {
           const convo = await createConversation();
           conversationId = convo.conversation_id;
           setActiveConversationId(conversationId);
+          // Seed the sidebar entry immediately so the auto-generated title
+          // (emitted in the `title` SSE event below) has a row to update.
+          setConversations((prev) =>
+            prev.some((c) => c.conversation_id === convo.conversation_id)
+              ? prev
+              : [{ ...convo }, ...prev]
+          );
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'Could not start a new conversation.';
           setLoadError(msg);
@@ -317,6 +343,16 @@ export default function App() {
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === assistantMsg.id ? { ...m, streaming: false } : m
+                )
+              );
+            },
+            // Backend auto-generates a title from the first question and sends
+            // it as a `title` SSE event. Persist it into the sidebar row.
+            onTitle: (title) => {
+              if (!title) return;
+              setConversations((prev) =>
+                prev.map((c) =>
+                  c.conversation_id === conversationId ? { ...c, title } : c
                 )
               );
             },
@@ -467,6 +503,7 @@ export default function App() {
         onNewChat={handleNewChat}
         onDelete={handleDelete}
         onDeleteConversation={handleDeleteConversation}
+        onRenameConversation={handleRenameConversation}
         onClose={() => setSidebarOpen(false)}
         onExpand={() => setSidebarOpen(true)}
         isMobile={isMobile}
