@@ -343,7 +343,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
+  flex: 1 1 auto;
   min-width: 0;
   padding: 9px 10px;
   text-align: left;
@@ -427,13 +427,19 @@
 .doc-item__del {
   display: grid;
   place-items: center;
-  width: 40px;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  margin: auto 4px auto 0;
+  border-radius: 10px;
   color: var(--ink-faint);
-  opacity: 0;
+  background: transparent;
+  opacity: 0.85;
   transition: opacity var(--transition), color var(--transition), background var(--transition);
 }
 
 .doc-item:hover .doc-item__del,
+.doc-item:focus-within .doc-item__del,
 .doc-item--active .doc-item__del,
 .doc-item__del--confirm {
   opacity: 1;
@@ -448,8 +454,9 @@
   color: var(--danger);
   background: #fdecec;
   width: auto;
-  padding: 0 12px;
+  padding: 0 10px;
   gap: 5px;
+  opacity: 1;
 }
 
 .doc-item__confirm {
@@ -500,7 +507,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  width: 100%;
+  flex: 1 1 auto;
   min-width: 0;
   padding: 9px 10px;
   text-align: left;
@@ -558,13 +565,19 @@
 .convo-item__del {
   display: grid;
   place-items: center;
-  width: 40px;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  margin: auto 4px auto 0;
+  border-radius: 10px;
   color: var(--ink-faint);
-  opacity: 0;
+  background: transparent;
+  opacity: 0.85;
   transition: opacity var(--transition), color var(--transition), background var(--transition);
 }
 
 .convo-item:hover .convo-item__del,
+.convo-item:focus-within .convo-item__del,
 .convo-item--active .convo-item__del,
 .convo-item__del--confirm {
   opacity: 1;
@@ -579,8 +592,9 @@
   color: var(--danger);
   background: #fdecec;
   width: auto;
-  padding: 0 12px;
+  padding: 0 10px;
   gap: 5px;
+  opacity: 1;
 }
 
 .convo-item__del--busy {
@@ -773,12 +787,19 @@
 
   .doc-item__del {
     opacity: 0.85;
-    width: 46px;
+    width: 42px;
+  }
+
+  .convo-item__del {
+    opacity: 0.85;
+    width: 42px;
   }
 
   /* On touch, never hide the delete control — it's a primary action now. */
   .doc-item--active .doc-item__del,
-  .doc-item__del--confirm {
+  .convo-item--active .convo-item__del,
+  .doc-item__del--confirm,
+  .convo-item__del--confirm {
     opacity: 1;
   }
 
