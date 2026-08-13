@@ -223,11 +223,15 @@ export default function App() {
       return;
     }
     if (activeConversationId === id) {
-      // Move to the next most-recent conversation, or fall back to an empty chat.
-      const next = conversations.find((c) => c.conversation_id !== id);
-      setActiveConversationId(next ? next.conversation_id : null);
+      // Deleting the active chat drops the user into a fresh, empty "New Chat"
+      // state rather than jumping to the previous conversation — deleting a chat
+      // is a deliberate exit from it, not a request to open another.
+      abortRef.current?.abort();
+      abortRef.current = null;
+      setIsThinking(false);
+      setActiveConversationId(null);
       setMessages([]);
-      if (next) void handleSelectConversation(next.conversation_id);
+      setSelectedId(null);
     }
   };
 
