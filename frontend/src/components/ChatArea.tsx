@@ -7,6 +7,7 @@ import { LogoMark, MenuIcon, SparkIcon, UploadIcon } from './Icons';
 interface ChatAreaProps {
   messages: ChatMessage[];
   activeDocument?: Document;
+  activeConversationTitle?: string;
   isThinking: boolean;
   composerValue: string;
   onComposerChange: (v: string) => void;
@@ -42,6 +43,7 @@ const CONCIERGE_SUGGESTIONS = [
 export function ChatArea({
   messages,
   activeDocument,
+  activeConversationTitle,
   isThinking,
   composerValue,
   onComposerChange,
@@ -131,7 +133,9 @@ export function ChatArea({
           <div className="welcome__inner">
             <div className="welcome__mark"><LogoMark size={46} /></div>
             <h1 className="welcome__title">
-              {activeDocument ? (
+              {activeConversationTitle ? (
+                <>{activeConversationTitle}</>
+              ) : activeDocument ? (
                 <>Ask anything about <em>"{activeDocument.filename}"</em></>
               ) : (
                 <>Your <em>document assistant</em></>

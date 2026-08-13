@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { askQuestionStream, createConversation, deleteDocument, listConversations, listDocuments } from './lib/api';
+import {
+  askQuestionStream,
+  createConversation,
+  deleteConversation,
+  deleteDocument,
+  getConversationMessages,
+  listConversations,
+  listDocuments,
+} from './lib/api';
 import { useAuth } from './lib/auth';
-import type { ChatMessage, Document } from './lib/types';
+import type { ChatMessage, Conversation, ConversationMessage, Document } from './lib/types';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
 import { UploadModal } from './components/UploadModal';
@@ -26,10 +34,13 @@ export default function App() {
   const [guestView, setGuestView] = useState<GuestView>('landing');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [composerValue, setComposerValue] = useState('');
   const [isThinking, setIsThinking] = useState(false);
+  const [loadingConversations, setLoadingConversations] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerAnchor, setPickerAnchor] = useState<HTMLElement | null>(null);
@@ -67,13 +78,28 @@ export default function App() {
     }
   }, []);
 
-  // Fetch documents only once auth has finished booting and a user is confirmed.
-  // Firing earlier would send an unauthenticated /documents request (no token yet),
-  // which the backend rejects with 401 "Token not found" — the race that broke deploys.
+  const refreshConversations = useCallback(async () => {
+    setLoadingConversations(true);
+    try {
+      const list = await listConversations();
+      setConversations(list);
+      return list;
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : 'Could not load conversations.');
+      return [];
+    } finally {
+      setLoadingConversations(false);
+    }
+  }, []);
+
+  // Fetch documents + conversations only once auth has finished booting and a
+  // user is confirmed. Firing earlier would send an unauthenticated request
+  // (no token yet), which the backend rejects with 401 "Token not found".
   useEffect(() => {
     if (isBooting || !user) return;
     void refreshDocuments();
-  }, [refreshDocuments, isBooting, user]);
+    void refreshConversations();
+  }, [refreshDocuments, refreshConversations, isBooting, user]);
 
   // If the selected document is deleted (or still processing), fall back to
   // the most recent processed document so the composer always has a target.
@@ -85,14 +111,18 @@ export default function App() {
 
   // Any switch of the signed-in user clears the previous session's chat state.
   // Without this, App stays mounted across logout→login and user 1's messages,
-  // selection, composer text, etc. survive into user 2's session.
+  // selection, composer text, etc. survive into user 2's session — leaking one
+  // account's history into another.
   useEffect(() => {
     setGuestView('landing');
     setMessages([]);
     setSelectedId(null);
+    setConversations([]);
     setActiveConversationId(null);
     setComposerValue('');
     setIsThinking(false);
+    setLoadingConversations(false);
+    setLoadingMessages(false);
     setUploadOpen(false);
     setPickerOpen(false);
     setLoadError('');
@@ -108,10 +138,62 @@ export default function App() {
     if (isMobile) setSidebarOpen(false);
   };
 
+  // Load a conversation's message history from the backend (Option A). Aborts any
+  // in-flight stream first so a stale callback from the previous chat can't paint
+  // into this one. The returned messages are mapped into the UI's ChatMessage
+  // shape; the source of truth stays server-side.
+  const handleSelectConversation = useCallback(
+    async (id: number) => {
+      if (id === activeConversationId) {
+        if (isMobile) setSidebarOpen(false);
+        return;
+      }
+      // Abort whatever is streaming in the current conversation.
+      abortRef.current?.abort();
+      abortRef.current = null;
+      setIsThinking(false);
+
+      setActiveConversationId(id);
+      setMessages([]);
+      setComposerValue('');
+      setLoadingMessages(true);
+      if (isMobile) setSidebarOpen(false);
+
+      try {
+        const history = await getConversationMessages(id);
+        // Guard: if the user switched again while we were fetching, drop the
+        // stale result so we never overwrite the newly selected conversation.
+        setActiveConversationId((current) => {
+          if (current === id) {
+            setMessages(
+              history.map((m: ConversationMessage, i) => ({
+                id: `${id}-${i}`,
+                role: m.role,
+                content: m.content,
+              }))
+            );
+          }
+          return current;
+        });
+      } catch (e) {
+        setLoadError(e instanceof Error ? e.message : 'Could not load this conversation.');
+      } finally {
+        setLoadingMessages(false);
+      }
+    },
+    [activeConversationId, isMobile]
+  );
+
   const handleNewChat = () => {
+    // Abort any active stream and reset to a fresh, empty chat. The conversation
+    // thread is created lazily on the first send (see handleSend), so an empty
+    // "New chat" doesn't leave a blank row in the sidebar.
+    abortRef.current?.abort();
+    abortRef.current = null;
+    setIsThinking(false);
     setMessages([]);
     setSelectedId(null);
-    setActiveConversationId(null); // next message will create a fresh conversation
+    setActiveConversationId(null);
     setComposerValue('');
     setPickerOpen(false);
     if (isMobile) setSidebarOpen(false);
@@ -121,6 +203,31 @@ export default function App() {
     await deleteDocument(id);
     setDocuments((prev) => prev.filter((d) => d.id !== id));
     if (selectedId === id) setSelectedId(null);
+  };
+
+  const handleDeleteConversation = async (id: number) => {
+    // Abort a stream if the user deletes the active conversation mid-flight.
+    if (id === activeConversationId) {
+      abortRef.current?.abort();
+      abortRef.current = null;
+      setIsThinking(false);
+    }
+    setConversations((prev) => prev.filter((c) => c.conversation_id !== id));
+    try {
+      await deleteConversation(id);
+    } catch (e) {
+      setLoadError(e instanceof Error ? e.message : 'Could not delete conversation.');
+      // Restore it in the sidebar on failure so we don't silently lose it.
+      void refreshConversations();
+      return;
+    }
+    if (activeConversationId === id) {
+      // Move to the next most-recent conversation, or fall back to an empty chat.
+      const next = conversations.find((c) => c.conversation_id !== id);
+      setActiveConversationId(next ? next.conversation_id : null);
+      setMessages([]);
+      if (next) void handleSelectConversation(next.conversation_id);
+    }
   };
 
   const handleUploaded = async () => {
@@ -350,10 +457,16 @@ export default function App() {
       <Sidebar
         documents={documents}
         selectedId={selectedId}
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        loadingConversations={loadingConversations}
+        loadingMessages={loadingMessages}
         collapsed={!sidebarOpen}
         onSelect={handleSelect}
+        onSelectConversation={handleSelectConversation}
         onNewChat={handleNewChat}
         onDelete={handleDelete}
+        onDeleteConversation={handleDeleteConversation}
         onClose={() => setSidebarOpen(false)}
         onExpand={() => setSidebarOpen(true)}
         isMobile={isMobile}
@@ -364,6 +477,9 @@ export default function App() {
       <ChatArea
         messages={messages}
         activeDocument={activeDocument ?? undefined}
+        activeConversationTitle={
+          conversations.find((c) => c.conversation_id === activeConversationId)?.title
+        }
         isThinking={isThinking}
         composerValue={composerValue}
         onComposerChange={setComposerValue}

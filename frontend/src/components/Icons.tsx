@@ -163,6 +163,14 @@ export function HistoryIcon({ size = 18, className }: IconProps) {
   );
 }
 
+export function ChatIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 9 9 0 0 1-4-1L3 20l1.5-5a8.38 8.38 0 0 1-1-4A8.5 8.5 0 0 1 21 11.5z" />
+    </svg>
+  );
+}
+
 export function LogoutIcon({ size = 18, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">

@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from src.conversation.controller import (
     create_conversation,
     delete_conversation as delete_conversation_ctrl,
+    get_conversation_messages,
     get_owned_conversation,
     list_conversations,
 )
@@ -11,6 +12,7 @@ from src.conversation.model import ConversationModel
 from src.conversation.schema import (
     ConversationCreateSchema,
     ConversationListSchema,
+    ConversationMessagesSchema,
     ConversationOutSchema,
 )
 from src.user.model import UserModel
@@ -57,6 +59,30 @@ async def get_conversation(
     """Fetch a single conversation — used by the frontend when switching
     conversations or restoring one after a page reload. Validates ownership."""
     return get_owned_conversation(conversation_id, user, db)
+
+
+@conversation_router.get(
+    "/{conversation_id}/messages",
+    response_model=ConversationMessagesSchema,
+)
+async def get_conversation_message_history(
+    conversation_id: int,
+    user: UserModel = Depends(is_authenticated),
+    db: Session = Depends(get_db),
+):
+    """Return a conversation's message history for the UI (Option A).
+
+    Reads from the LangGraph PostgresSaver checkpoint under the conversation's
+    thread_id and normalises it into a clean `{conversation_id, messages}` shape.
+    Ownership is enforced inside the controller; a missing or not-yours
+    conversation yields 404 with no existence leak."""
+    raw = await get_conversation_messages(conversation_id, user, db)
+    return ConversationMessagesSchema(
+        id=conversation_id,
+        messages=[
+            {"role": m["role"], "content": m["content"]} for m in raw
+        ],
+    )
 
 
 @conversation_router.delete("/{conversation_id}")

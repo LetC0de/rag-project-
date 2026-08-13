@@ -1,15 +1,21 @@
 import { useEffect, useRef, useState } from 'react';
-import type { Document, User } from '../lib/types';
-import { docColor, formatDate, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
-import { LogoMark, NewChatIcon, TrashIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon, FileIcon, HistoryIcon } from './Icons';
+import type { Conversation, Document, User } from '../lib/types';
+import { docColor, formatDate, formatTime, initialsFromFilename, STATUS_LABEL } from '../lib/palette';
+import { LogoMark, NewChatIcon, TrashIcon, ChevronIcon, XIcon, LogoutIcon, UserIcon, FileIcon, HistoryIcon, ChatIcon } from './Icons';
 
 interface SidebarProps {
   documents: Document[];
   selectedId: number | null;
+  conversations: Conversation[];
+  activeConversationId: number | null;
+  loadingConversations: boolean;
+  loadingMessages: boolean;
   collapsed: boolean;
   onSelect: (id: number) => void;
+  onSelectConversation: (id: number) => void;
   onNewChat: () => void;
   onDelete: (id: number) => Promise<void>;
+  onDeleteConversation: (id: number) => Promise<void>;
   onClose: () => void;
   onExpand: () => void;
   isMobile: boolean;
@@ -17,7 +23,25 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
-export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat, onDelete, onClose, onExpand, isMobile, user, onLogout }: SidebarProps) {
+export function Sidebar({
+  documents,
+  selectedId,
+  conversations,
+  activeConversationId,
+  loadingConversations,
+  loadingMessages,
+  collapsed,
+  onSelect,
+  onSelectConversation,
+  onNewChat,
+  onDelete,
+  onDeleteConversation,
+  onClose,
+  onExpand,
+  isMobile,
+  user,
+  onLogout,
+}: SidebarProps) {
   const [confirmingId, setConfirmingId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const confirmTimer = useRef<number | null>(null);
@@ -41,6 +65,30 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
       confirmTimer.current = window.setTimeout(() => setConfirmingId(null), 3500);
     }
   };
+
+  const [confirmConvoId, setConfirmConvoId] = useState<number | null>(null);
+  const [deletingConvoId, setDeletingConvoId] = useState<number | null>(null);
+  const convoTimer = useRef<number | null>(null);
+
+  const handleDeleteConversation = async (convo: Conversation) => {
+    if (confirmConvoId === convo.conversation_id) {
+      if (convoTimer.current) window.clearTimeout(convoTimer.current);
+      setConfirmConvoId(null);
+      setDeletingConvoId(convo.conversation_id);
+      try {
+        await onDeleteConversation(convo.conversation_id);
+      } finally {
+        setDeletingConvoId(null);
+      }
+    } else {
+      setConfirmConvoId(convo.conversation_id);
+      convoTimer.current = window.setTimeout(() => setConfirmConvoId(null), 3500);
+    }
+  };
+
+  useEffect(() => () => {
+    if (convoTimer.current) window.clearTimeout(convoTimer.current);
+  }, []);
 
   const readyCount = documents.filter((d) => d.status === 'processed').length;
 
@@ -164,6 +212,66 @@ export function Sidebar({ documents, selectedId, collapsed, onSelect, onNewChat,
                     <TrashIcon size={14} />
                     {isConfirming && <span className="doc-item__confirm">Sure?</span>}
                   </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="sidebar__section">
+          <div className="sidebar__section-head">
+            <span className="sidebar__section-title">Conversations</span>
+            <span className="sidebar__count">{conversations.length}</span>
+          </div>
+
+          <div className="convo-list">
+            {loadingConversations && (
+              <div className="convo-list__loading">Loading conversations…</div>
+            )}
+
+            {!loadingConversations && conversations.length === 0 && (
+              <div className="doc-list__empty">
+                <p>No chats yet.</p>
+                <p>Start a new chat to begin a conversation.</p>
+              </div>
+            )}
+
+            {conversations.map((convo) => {
+              const active = convo.conversation_id === activeConversationId;
+              const isConfirming = confirmConvoId === convo.conversation_id;
+              const isDeleting = deletingConvoId === convo.conversation_id;
+              return (
+                <div
+                  key={convo.conversation_id}
+                  className={`convo-item ${active ? 'convo-item--active' : ''}`}
+                >
+                  <button
+                    className="convo-item__main"
+                    onClick={() => onSelectConversation(convo.conversation_id)}
+                    title={convo.title}
+                  >
+                    <span className="convo-item__icon">
+                      <ChatIcon size={15} />
+                    </span>
+                    <span className="convo-item__meta">
+                      <span className="convo-item__name">{convo.title}</span>
+                      <span className="convo-item__sub">{formatTime(convo.updated_at)}</span>
+                    </span>
+                  </button>
+
+                  <button
+                    className={`convo-item__del ${isConfirming ? 'convo-item__del--confirm' : ''} ${isDeleting ? 'convo-item__del--busy' : ''}`}
+                    onClick={() => handleDeleteConversation(convo)}
+                    disabled={isDeleting}
+                    title={isConfirming ? 'Click again to confirm' : 'Delete conversation'}
+                    aria-label={`Delete ${convo.title}`}
+                  >
+                    <TrashIcon size={14} />
+                    {isConfirming && <span className="doc-item__confirm">Sure?</span>}
+                  </button>
+                  {active && loadingMessages && (
+                    <span className="convo-item__spinner" aria-hidden="true" />
+                  )}
                 </div>
               );
             })}

@@ -468,6 +468,143 @@
   margin-top: 12px;
 }
 
+/* ============================================================
+   Conversation list (below Documents)
+   ============================================================ */
+.convo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.convo-list__loading {
+  padding: 8px 12px;
+  font-size: 12.5px;
+  color: var(--ink-faint);
+}
+
+.convo-item {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.convo-item--active {
+  background: #fff;
+  box-shadow: var(--shadow-sm), inset 0 0 0 1.5px var(--line);
+}
+
+.convo-item__main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 9px 10px;
+  text-align: left;
+  border-radius: 12px;
+  transition: background var(--transition);
+}
+
+.convo-item__main:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.convo-item__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  color: var(--berry);
+  background: var(--berry-soft);
+  transition: transform var(--transition), background var(--transition);
+}
+
+.convo-item:hover .convo-item__icon {
+  transform: rotate(-4deg) scale(1.04);
+}
+
+.convo-item--active .convo-item__icon {
+  color: #fff;
+  background: linear-gradient(135deg, var(--berry), #c13a72);
+  box-shadow: 0 4px 10px -4px rgba(227, 79, 143, 0.5);
+}
+
+.convo-item__meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.convo-item__name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.convo-item__sub {
+  font-size: 11px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.convo-item__del {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  color: var(--ink-faint);
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition), background var(--transition);
+}
+
+.convo-item:hover .convo-item__del,
+.convo-item--active .convo-item__del,
+.convo-item__del--confirm {
+  opacity: 1;
+}
+
+.convo-item__del:hover {
+  color: var(--danger);
+  background: #fdecec;
+}
+
+.convo-item__del--confirm {
+  color: var(--danger);
+  background: #fdecec;
+  width: auto;
+  padding: 0 12px;
+  gap: 5px;
+}
+
+.convo-item__del--busy {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.convo-item__spinner {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 2px solid var(--berry-soft);
+  border-top-color: var(--berry);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* ---------- Floating expand button (desktop, collapsed) ---------- */
 .sidebar__expand {
   position: absolute;

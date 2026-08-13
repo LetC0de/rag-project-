@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
+from langchain_core.messages import AIMessage, HumanMessage
+
 from src.conversation.model import ConversationModel
 from src.user.model import UserModel
 
@@ -57,3 +59,52 @@ def touch(conversation_id: int, user: UserModel, db: Session) -> None:
     conversation = get_owned_conversation(conversation_id, user, db)
     # onupdate handles the timestamp; just commit to persist it.
     db.commit()
+
+
+async def get_conversation_messages(
+    conversation_id: int, user: UserModel, db: Session
+) -> list[dict]:
+    """Return a conversation's message history as a plain list for the UI.
+
+    This is the clean application API (Option A) the frontend depends on —
+    it does NOT expose LangGraph's internal checkpoint table shape. History
+    actually lives in PostgresSaver under thread_id = user-{id}-conversation-{id}
+    (see checkpointer.make_thread_id); we read it through the compiled graph's
+    aget_state rather than touching checkpoint blobs directly.
+
+    Ownership is enforced via get_owned_conversation, so a 404 is returned for
+    both missing and not-yours threads (no existence leak). The LangGraph state
+    read is best-effort: if the checkpointer isn't ready we return an empty list
+    rather than failing the request — the row still exists, just no messages yet.
+    """
+    # Validate ownership first; raises 404 otherwise.
+    get_owned_conversation(conversation_id, user, db)
+
+    from src.graph.checkpointer import make_thread_id
+    from src.graph.graph import get_compiled_graph
+
+    thread_id = make_thread_id(user.id, conversation_id)
+    config = {"configurable": {"thread_id": thread_id}}
+    try:
+        compiled = get_compiled_graph()
+        state = await compiled.aget_state(config)
+    except Exception:  # noqa: BLE001 - best-effort history read
+        # Checkpointer not initialised or state read failed — don't break the UI.
+        return []
+
+    messages = (state.values or {}).get("messages", []) if state else []
+    out: list[dict] = []
+    for m in messages:
+        role = None
+        content = ""
+        if isinstance(m, HumanMessage):
+            role = "user"
+            content = m.content if isinstance(m.content, str) else str(m.content)
+        elif isinstance(m, AIMessage):
+            role = "assistant"
+            content = m.content if isinstance(m.content, str) else str(m.content)
+        else:
+            # Skip system / tool / unknown message types in the UI timeline.
+            continue
+        out.append({"role": role, "content": content})
+    return out

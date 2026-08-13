@@ -38,6 +38,14 @@ export interface Conversation {
   updated_at: string;
 }
 
+// One turn loaded from GET /conversations/{id}/messages. The backend reads the
+// LangGraph checkpoint and flattens it to this shape, so the client never
+// depends on LangGraph's internal message format.
+export interface ConversationMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export interface QueryRequest {
   // Required: identifies which chat session memory belongs to.
   conversation_id: number;

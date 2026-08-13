@@ -30,3 +30,22 @@ class ConversationOutSchema(BaseModel):
 
 class ConversationListSchema(BaseModel):
     conversations: list[ConversationOutSchema]
+
+
+class ConversationMessageSchema(BaseModel):
+    """A single turn in a conversation's UI timeline.
+
+    Derived from the LangGraph checkpoint state, normalised down to the two
+    fields the frontend actually renders. The backend owns the translation so
+    the client never couples to LangGraph's checkpoint internals.
+    """
+
+    role: str  # "user" | "assistant"
+    content: str
+
+
+class ConversationMessagesSchema(BaseModel):
+    """Response for GET /conversations/{id}/messages (Option A history API)."""
+
+    conversation_id: int = Field(validation_alias="id")
+    messages: list[ConversationMessageSchema]

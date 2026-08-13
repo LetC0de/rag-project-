@@ -1,5 +1,6 @@
 import type {
   Conversation,
+  ConversationMessage,
   Document,
   LoginInput,
   QueryRequest,
@@ -261,6 +262,14 @@ export async function deleteConversation(id: number): Promise<void> {
     headers: authHeaders(),
   });
   await handle<unknown>(res);
+}
+
+export async function getConversationMessages(id: number): Promise<ConversationMessage[]> {
+  const res = await fetch(`${BASE}/conversations/${id}/messages`, {
+    headers: authHeaders(),
+  });
+  const data = await handle<{ conversation_id: number; messages: ConversationMessage[] }>(res);
+  return data.messages ?? [];
 }
 
 // ---------- Auth ----------
