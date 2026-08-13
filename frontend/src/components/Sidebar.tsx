@@ -157,7 +157,7 @@ export function Sidebar({
           <span>New chat</span>
         </button>
 
-        <div className="sidebar__section">
+        <div className="sidebar__section sidebar__section--scroll">
           <div className="sidebar__section-head">
             <span className="sidebar__section-title">Documents</span>
             <span className="sidebar__count">{readyCount} ready</span>
@@ -218,7 +218,7 @@ export function Sidebar({
           </div>
         </div>
 
-        <div className="sidebar__section">
+        <div className="sidebar__section sidebar__section--scroll">
           <div className="sidebar__section-head">
             <span className="sidebar__section-title">Conversations</span>
             <span className="sidebar__count">{conversations.length}</span>

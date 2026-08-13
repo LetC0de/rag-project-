@@ -247,18 +247,18 @@
 .sidebar__body {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   padding-right: 2px;
   white-space: nowrap;
-  /* Improve momentum scrolling on iOS */
-  -webkit-overflow-scrolling: touch;
 }
 
 .new-chat {
   display: flex;
   align-items: center;
   gap: 9px;
+  flex-shrink: 0;
   width: 100%;
   padding: 10px 12px;
   border-radius: 12px;
@@ -283,11 +283,32 @@
   margin-top: 22px;
 }
 
+/* Each section scrolls on its own so a long list of documents and a long
+   list of conversations don't collapse into one giant page scroll. The New
+   Chat button stays pinned above both. min-height:0 is required so a flex
+   child can shrink and scroll instead of overflowing the sidebar. */
+.sidebar__section--scroll {
+  flex: 1 1 0;
+  min-height: 0;
+  margin-top: 18px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 2px;
+  /* Improve momentum scrolling on iOS */
+  -webkit-overflow-scrolling: touch;
+}
+
 .sidebar__section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 4px 8px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(250, 246, 239, 0.94) 75%, rgba(250, 246, 239, 0));
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .sidebar__section-title {
