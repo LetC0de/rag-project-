@@ -1,4 +1,5 @@
 import type {
+  Conversation,
   Document,
   LoginInput,
   QueryRequest,
@@ -235,6 +236,31 @@ async function readSSEStream(
       onError(e instanceof Error ? e.message : 'Stream interrupted');
     }
   }
+}
+
+// ---------- Conversations ----------
+
+export async function createConversation(title?: string): Promise<Conversation> {
+  const res = await fetch(`${BASE}/conversations/`, {
+    method: 'POST',
+    headers: authHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(title ? { title } : {}),
+  });
+  return handle<Conversation>(res);
+}
+
+export async function listConversations(): Promise<Conversation[]> {
+  const res = await fetch(`${BASE}/conversations/`, { headers: authHeaders() });
+  const data = await handle<{ conversations: Conversation[] }>(res);
+  return data.conversations ?? [];
+}
+
+export async function deleteConversation(id: number): Promise<void> {
+  const res = await fetch(`${BASE}/conversations/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  await handle<unknown>(res);
 }
 
 // ---------- Auth ----------

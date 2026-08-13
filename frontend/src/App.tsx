@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { askQuestionStream, deleteDocument, listDocuments } from './lib/api';
+import { askQuestionStream, createConversation, deleteDocument, listConversations, listDocuments } from './lib/api';
 import { useAuth } from './lib/auth';
 import type { ChatMessage, Document } from './lib/types';
 import { Sidebar } from './components/Sidebar';
@@ -26,6 +26,7 @@ export default function App() {
   const [guestView, setGuestView] = useState<GuestView>('landing');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [composerValue, setComposerValue] = useState('');
   const [isThinking, setIsThinking] = useState(false);
@@ -89,6 +90,7 @@ export default function App() {
     setGuestView('landing');
     setMessages([]);
     setSelectedId(null);
+    setActiveConversationId(null);
     setComposerValue('');
     setIsThinking(false);
     setUploadOpen(false);
@@ -109,6 +111,7 @@ export default function App() {
   const handleNewChat = () => {
     setMessages([]);
     setSelectedId(null);
+    setActiveConversationId(null); // next message will create a fresh conversation
     setComposerValue('');
     setPickerOpen(false);
     if (isMobile) setSidebarOpen(false);
@@ -134,6 +137,22 @@ export default function App() {
       const text = (overrideText ?? composerValue).trim();
       if (!text || isThinking) return;
 
+      // Ensure a conversation thread exists for this chat session. Created
+      // lazily — only on the first send after "New Chat" or login — so the
+      // backend can checkpoint under a known conversation_id.
+      let conversationId = activeConversationId;
+      if (conversationId === null) {
+        try {
+          const convo = await createConversation();
+          conversationId = convo.conversation_id;
+          setActiveConversationId(conversationId);
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : 'Could not start a new conversation.';
+          setLoadError(msg);
+          return;
+        }
+      }
+
       const userMsg: ChatMessage = {
         id: crypto.randomUUID(),
         role: 'user',
@@ -156,11 +175,16 @@ export default function App() {
       const controller = new AbortController();
       abortRef.current = controller;
 
-      // With no document selected, omit document_id so the backend answers
-      // in concierge mode (about the product) instead of retrieving content.
+      // conversation_id is always sent (memory thread). document_id is
+      // optional — omitted in concierge mode so the backend answers about
+      // the product instead of retrieving from a document.
       const payload = activeDocument
-        ? { document_id: activeDocument.id, question: text }
-        : { question: text };
+        ? {
+            conversation_id: conversationId,
+            document_id: activeDocument.id,
+            question: text,
+          }
+        : { conversation_id: conversationId, question: text };
 
       try {
         // Stream the answer: sources arrive first (citation chips), then the

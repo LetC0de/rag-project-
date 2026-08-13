@@ -28,7 +28,19 @@ export interface Document {
   created_at: string;
 }
 
+// Conversation = one chat session owned by a user. Messages are checkpointed
+// server-side under this id (via LangGraph + PostgresSaver); the client only
+// needs the id to identify which thread to send to.
+export interface Conversation {
+  conversation_id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface QueryRequest {
+  // Required: identifies which chat session memory belongs to.
+  conversation_id: number;
   // Optional: when omitted, the assistant answers in concierge mode
   // (about the product) rather than retrieving from a document.
   document_id?: number;
