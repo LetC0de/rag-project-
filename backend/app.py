@@ -29,15 +29,18 @@ async def lifespan(app: FastAPI):
     # This creates the LangGraph checkpoint tables (checkpoint, writes, blobs)
     # if they don't exist. Per the architecture spec: setup() runs at DB
     # initialisation time, NOT per request.
-    from src.graph.checkpointer import init_checkpointer
+    from src.graph.checkpointer import close_checkpointer, init_checkpointer
     from src.graph.graph import get_compiled_graph
-    init_checkpointer()
+    # Initialise the async PostgresSaver singleton + run setup() once (creates
+    # the LangGraph checkpoint tables). This must run before the first request.
+    await init_checkpointer()
     # Compile the graph once and keep it warm for the lifetime of the app.
     get_compiled_graph()
 
     yield
 
-    # No explicit teardown needed — PostgresSaver manages its own pool.
+    # Release the long-lived checkpointer connection on shutdown.
+    await close_checkpointer()
 
 
 app = FastAPI(title="Enterprise Knowledge Asistant", lifespan=lifespan)

@@ -2,25 +2,36 @@
 
 Flow per request:
     1. (router) validate conversation + document ownership.
-    2. RAG mode: retrieve chunks from Qdrant (filtered by document_id) inside
-       a worker thread so we don't block the event loop; build the context
-       string; emit `event: sources`.
-    3. Stream tokens from Mistral via `llm.astream` -> `event: token` ...
-    4. Emit `event: done`.
-    5. Persist the exchange (task) with `graph.update_state()` under the
-       thread_id, so PostgresSaver checkpoints the message pair for the next
-       turn. This is the short-term memory write.
-
-Why `update_state` instead of running `graph.ainvoke`?
-    ainvoke would re-run `generate_answer`, calling Mistral a second time and
-    producing a *different* answer (LLMs are non-deterministic), then append a
-    second AIMessage on top of the already-checkpointed one. That's the
-    "answer sent twice / wrong memory" failure mode. `update_state` writes
-    exactly the value we give it, marked as if `generate_answer` produced it,
-    with no additional model or retrieval calls. The real token stream to the
-    client uses the same `llm.astream` the original SSE code used.
+    2. (here) load the conversation's prior messages from PostgresSaver under
+       the thread_id — this IS the short-term memory read.
+    3. RAG mode: retrieve chunks from Qdrant (filtered by document_id) inside a
+       worker thread so we don't block the event loop; build the context string;
+       emit `event: sources`.
+    4. Build the LLM message list = (recent history) + (current prompt's
+       system/human turns). This is what gives the model conversational context
+       ("it" refers to the thing we discussed two turns ago).
+    5. Stream tokens from Mistral via `llm.astream` -> `event: token` ...
+    6. Emit `event: done`.
+    7. Persist the completed exchange (Human + AI message pair) with
+       `graph.aupdate_state()` under the thread_id, so PostgresSaver checkpoints
+       it for the next turn. This is the short-term memory write.
 
 Single Mistral call per request; single Qdrant retrieval; single checkpoint.
+
+Why `aupdate_state` instead of running `graph.ainvoke`?
+    ainvoke would re-run `generate_answer`, calling Mistral a second time and
+    producing a *different* answer (LLMs are non-deterministic), then append a
+    second AIMessage on top of the already-streamed one. That's the "answer sent
+    twice / wrong memory" failure mode. `aupdate_state` writes exactly the value
+    we give it, marked as if `generate_answer` produced it, with no additional
+    model or retrieval calls. The real token stream to the client uses the same
+    `llm.astream` the original SSE code used.
+
+Recent-history windowing:
+    We never feed the entire message log to the model — an old conversation can
+    grow past the context window. We keep the LAST `MAX_HISTORY_MESSAGES`
+    messages (default 20) and prepend those to the current prompt. For a larger
+    history later, summarization is the next optimization (not in this build).
 """
 from __future__ import annotations
 
@@ -29,7 +40,12 @@ import json
 import traceback
 from typing import Any, AsyncIterator, Optional
 
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import (
+    AIMessage,
+    BaseMessage,
+    HumanMessage,
+    SystemMessage,
+)
 
 from src.graph.checkpointer import make_thread_id
 from src.graph.graph import get_compiled_graph
@@ -38,6 +54,10 @@ from src.rag.llm import llm
 from src.rag.prompt import concierge_prompt, prompt
 from src.rag.retriever import get_retriever
 from src.user.model import UserModel
+
+# Keep the most recent N messages as short-term memory context. Beyond this we
+# rely on the current retrieval + (later) summarization, not the raw log.
+MAX_HISTORY_MESSAGES = 20
 
 
 def _sse(event: str, payload: dict) -> str:
@@ -68,6 +88,41 @@ def _build_context(docs: list[Any]) -> str:
     return "\n\n".join(parts)
 
 
+def _recent_history(messages: list[BaseMessage], limit: int) -> list[BaseMessage]:
+    """Keep only the most recent `limit` messages.
+
+    The checkpoint stores the full log; we trim here so we never blow the model
+    context window on long conversations (req #13).
+    """
+    if limit and len(messages) > limit:
+        return messages[-limit:]
+    return messages
+
+
+def _history_to_lc_messages(messages: list[BaseMessage]) -> list[BaseMessage]:
+    """Normalise checkpoint messages for the LLM input.
+
+    AIMessage/HumanMessage pass through. The checkpointer may store a raw dict
+    or a SystemMessage; we keep Human/AI and drop stray System messages (the
+    current prompt supplies its own system turn). Everything is coerced to a
+    stable LangChain message type so the chat model accepts the history.
+    """
+    out: list[BaseMessage] = []
+    for m in messages:
+        if isinstance(m, (HumanMessage, AIMessage, SystemMessage)):
+            out.append(m)
+            continue
+        # Defensive: if a checkpoint ever yields a plain dict, coerce by role.
+        if isinstance(m, dict):
+            role = m.get("type") or m.get("role")
+            content = m.get("content", "")
+            if role == "human":
+                out.append(HumanMessage(content=content))
+            elif role == "ai":
+                out.append(AIMessage(content=content))
+    return out
+
+
 async def stream_question(
     request: QueryRequestSchema,
     user: UserModel,
@@ -78,11 +133,24 @@ async def stream_question(
         sources -> token x N -> done    (or error + done on mid-stream failure)
 
     After the stream finishes, the Human/AI message pair is checkpointed via
-    graph.update_state under thread_id = user-{id}-conversation-{id}.
+    graph.aupdate_state under thread_id = user-{id}-conversation-{id}.
     """
     thread_id = make_thread_id(user.id, request.conversation_id)
 
     try:
+        # ----- Short-term memory READ -----
+        # Pull the prior turns for this conversation from PostgresSaver. This is
+        # what makes "What is my name?" resolve to the earlier "I'm Abhishek."
+        graph = get_compiled_graph()
+        config = {"configurable": {"thread_id": thread_id}}
+        prior_state = await graph.aget_state(config)
+        prior_messages = (
+            prior_state.values.get("messages", []) if prior_state else []
+        )
+        history = _history_to_lc_messages(
+            _recent_history(prior_messages, MAX_HISTORY_MESSAGES)
+        )
+
         # ----- RAG mode: retrieve + sources (before tokens) -----
         if request.document_id is not None:
             question = request.question
@@ -113,15 +181,30 @@ async def stream_question(
             context = _build_context(docs)
             yield _sse("sources", {"sources": sources, "document_id": document_id})
 
-            prompt_input = prompt.invoke({"context": context, "question": question})
+            # RAG prompt template renders to [system, human]; we keep its system
+            # turn (the document-grounding instructions) and inject history +
+            # the fresh human question AFTER it.
+            prompt_value = prompt.invoke({"context": context, "question": question})
+            prompt_messages = list(prompt_value.messages)
+            # Strip any leading system turn from history to avoid two systems;
+            # keep the prompt's system turn as authoritative.
+            history_no_system = [
+                m for m in history if not isinstance(m, SystemMessage)
+            ]
+            llm_input = prompt_messages[:-1] + history_no_system + [prompt_messages[-1]]
         else:
             # Concierge mode: no document, no retrieval, no citations.
             yield _sse("sources", {"sources": [], "document_id": None})
-            prompt_input = concierge_prompt.invoke({"question": request.question})
+            prompt_value = concierge_prompt.invoke({"question": request.question})
+            prompt_messages = list(prompt_value.messages)
+            history_no_system = [
+                m for m in history if not isinstance(m, SystemMessage)
+            ]
+            llm_input = prompt_messages[:-1] + history_no_system + [prompt_messages[-1]]
 
-        # ----- Stream the answer -----
+        # ----- Stream the answer (single Mistral call) -----
         full_answer = ""
-        async for chunk in llm.astream(prompt_input):
+        async for chunk in llm.astream(llm_input):
             delta = chunk.content or ""
             if not delta:
                 continue
@@ -161,7 +244,7 @@ async def _checkpoint(
 ) -> None:
     """Write the completed Human/AI exchange to the thread checkpoint.
 
-    Uses graph.update_state (not ainvoke) so no extra Mistral/Qdrant call runs
+    Uses graph.aupdate_state (not ainvoke) so no extra Mistral/Qdrant call runs
     and the message pair is stored exactly as streamed. Called after `done` is
     sent so a previous checkpoint write can never delay the response.
 
@@ -180,7 +263,7 @@ async def _checkpoint(
         # as_node="generate_answer" tags the write so the checkpoint reads as
         # if the generate node produced it — node names don't matter for
         # memory, but it keeps checkpoint metadata honest.
-        await graph.update_state(
+        await graph.aupdate_state(
             config,
             values,
             as_node="generate_answer",

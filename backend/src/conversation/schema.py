@@ -11,11 +11,18 @@ class ConversationCreateSchema(BaseModel):
 
 
 class ConversationOutSchema(BaseModel):
-    """Conversation returned to the client."""
+    """Conversation returned to the client.
+
+    The DB column is `id`, but the client contract (and the rest of the app)
+    uses `conversation_id`. We read the value from `id` via `validation_alias`
+    so it can be populated from the ORM row, while `conversation_id` remains the
+    *serialisation* key (no `alias` on the output field) — so FastAPI emits
+    `{"conversation_id": 101, ...}` rather than `{"id": 101, ...}`.
+    """
 
     model_config = ConfigDict(from_attributes=True)
 
-    conversation_id: int = Field(alias="id")
+    conversation_id: int = Field(validation_alias="id")
     title: str
     created_at: datetime
     updated_at: datetime

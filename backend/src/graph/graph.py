@@ -43,9 +43,11 @@ def get_compiled_graph():
     """Compile the graph once per process; return the same object thereafter.
 
     `lru_cache` here is just a belt-and-suspenders guard against accidental
-    double-init. The checkpointer module is the real source of truth.
+    double-init. The checkpointer module is the real source of truth — it must
+    be initialised (async) during the FastAPI lifespan before the first request.
+    We do NOT call init_checkpointer() here: that is async and lives in the
+    startup lifecycle.
     """
-    init_checkpointer()
     checkpointer = get_checkpointer()
 
     builder = StateGraph(RAGState)
