@@ -126,10 +126,10 @@
 }
 
 .landing__nav-login {
-  height: 42px;
-  padding: 0 16px;
-  border-radius: 11px;
-  font-size: 15px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--ink);
   transition: background var(--transition), color var(--transition);
@@ -140,12 +140,12 @@
 }
 
 .landing__nav-join {
-  height: 42px;
-  padding: 0 20px;
-  border-radius: 11px;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 10px;
   background: var(--brand);
   color: #fff;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   box-shadow: 0 3px 8px -2px rgba(242, 84, 31, 0.45);
   transition: background var(--transition), box-shadow var(--transition), transform var(--transition);
