@@ -238,18 +238,27 @@ export function Landing({ onLogin, onRegister }: LandingProps) {
           </div>
         </section>
 
-        {/* ---------- Formats ---------- */}
-        <div className="landing__formats">
-          <div className="landing__formats-inner">
-            <span className="landing__formats-label">Works with</span>
-            {FORMATS.map((f) => (
-              <span className="landing__format" key={f.label}>
-                <i style={{ background: f.color }} aria-hidden="true" />
-                {f.label}
-              </span>
-            ))}
+        {/* ---------- Formats: a continuously scrolling marquee ---------- */}
+        <section className="landing__formats" aria-label="Supported file formats">
+          {/* Label sits centered on top, with breathing room above the marquee. */}
+          <span className="landing__formats-label">Works with</span>
+          <div className="landing__marquee">
+            {/* The track holds the chips twice so the -50% scroll loops
+                seamlessly. The duplicate set is hidden from screen readers. */}
+            <div className="landing__marquee-track">
+              {[...FORMATS, ...FORMATS].map((f, i) => (
+                <span
+                  className="landing__format"
+                  key={`${f.label}-${i}`}
+                  aria-hidden={i >= FORMATS.length}
+                >
+                  <i style={{ background: f.color }} aria-hidden="true" />
+                  {f.label}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        </section>
 
         {/* ---------- Features ---------- */}
         <section className="landing__section" id="features">
