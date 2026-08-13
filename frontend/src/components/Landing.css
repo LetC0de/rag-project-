@@ -832,8 +832,13 @@
     gap: 40px;
   }
 
-  .hero__cta .btn {
-    flex: 1;
+  /* On small screens, drop the hero's own Get started / Log in buttons and the
+     "Private to your account…" trust line — the navbar keeps its own Log in /
+     Get started controls, so login stays reachable without the duplicated hero
+     pair. Desktop layout is untouched. */
+  .hero__cta,
+  .hero__trust {
+    display: none;
   }
 
   .features__grid {
