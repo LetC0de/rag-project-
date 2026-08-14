@@ -865,6 +865,22 @@
     display: none;
   }
 
+  /* Nav CTA pair tightens once the links disappear and horizontal space is
+     scarce. Height and padding come down; text stays readable. */
+  .landing__nav-login {
+    height: 28px;
+    padding: 0 9px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
+  .landing__nav-join {
+    height: 28px;
+    padding: 0 11px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+
   .landing__hero {
     padding: 56px 18px 52px;
   }
@@ -919,5 +935,21 @@
 
   .mock__tab-name {
     font-size: 13px;
+  }
+
+  /* On the narrowest phones, shrink the nav pair a touch more so "Log in" and
+     "Get started" sit comfortably without crowding the brand mark. */
+  .landing__nav-login {
+    height: 22px;
+    padding: 0 6px;
+    font-size: 11px;
+    border-radius: 7px;
+  }
+
+  .landing__nav-join {
+    height: 22px;
+    padding: 0 7px;
+    font-size: 11px;
+    border-radius: 7px;
   }
 }
