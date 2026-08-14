@@ -132,11 +132,14 @@
   font-size: 14px;
   font-weight: 600;
   color: var(--ink);
-  transition: background var(--transition), color var(--transition);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
 }
 
 .landing__nav-login:hover {
-  background: rgba(43, 38, 32, 0.06);
+  background: #fafafa;
+  border-color: var(--ink-faint);
 }
 
 .landing__nav-join {
