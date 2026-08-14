@@ -121,8 +121,7 @@ async def delete_conversation(
     # and the graph may not be initialised yet during a request lifecycle.
     try:
         from src.graph.checkpointer import delete_thread
-        from src.user.model import UserModel as _U
-        delete_thread(user.id, conversation_id)
+        await delete_thread(user.id, conversation_id)
     except Exception:
         # Don't fail the user-facing request if checkpoint cleanup fails;
         # the row is already gone and orphaned checkpoints are harmless.
