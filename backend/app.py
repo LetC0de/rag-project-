@@ -63,3 +63,4 @@ app.include_router(conversation_router)
 @app.get("/")
 async def root():
     return {"message": "Enterprise Knowledge Assistant API"}
+    
