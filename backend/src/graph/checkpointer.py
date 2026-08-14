@@ -86,10 +86,14 @@ async def init_checkpointer() -> AsyncPostgresSaver:
     # One pool for the whole process. open=False so we control startup; we open
     # it explicitly and run setup() against it. SSL is read from the connection
     # string itself (e.g. `?sslmode=require`), so no extra ssl kwarg is needed.
+    # autocommit=True matches the original single-connection behaviour
+    # (from_conn_string set it) so checkpoint writes commit immediately instead
+    # of lingering in an uncommitted transaction.
     _pool = AsyncConnectionPool(
         conn_string,
         open=False,
         max_size=20,
+        kwargs={"autocommit": True},
     )
     await _pool.open()
 
