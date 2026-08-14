@@ -847,6 +847,22 @@
     max-width: 560px;
   }
 
+  /* Tablet: keep the nav pair compact but with comfortable tap height and
+     breathing room — no cramped text. */
+  .landing__nav-login {
+    height: 36px;
+    padding: 0 14px;
+    font-size: 14px;
+    border-radius: 9px;
+  }
+
+  .landing__nav-join {
+    height: 36px;
+    padding: 0 16px;
+    font-size: 14px;
+    border-radius: 9px;
+  }
+
   .features__grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -865,20 +881,24 @@
     display: none;
   }
 
-  /* Nav CTA pair tightens once the links disappear and horizontal space is
-     scarce. Height and padding come down; text stays readable. */
+  /* Nav CTA pair on phones: clean compact pills with a comfortable tap height
+     and balanced padding — readable text, no pinched boxes. */
+  .landing__nav-cta {
+    gap: 8px;
+  }
+
   .landing__nav-login {
-    height: 28px;
-    padding: 0 9px;
-    font-size: 12px;
-    border-radius: 8px;
+    height: 34px;
+    padding: 0 14px;
+    font-size: 13px;
+    border-radius: 9px;
   }
 
   .landing__nav-join {
-    height: 28px;
-    padding: 0 11px;
-    font-size: 12px;
-    border-radius: 8px;
+    height: 34px;
+    padding: 0 16px;
+    font-size: 13px;
+    border-radius: 9px;
   }
 
   .landing__hero {
@@ -937,19 +957,19 @@
     font-size: 13px;
   }
 
-  /* On the narrowest phones, shrink the nav pair a touch more so "Log in" and
-     "Get started" sit comfortably without crowding the brand mark. */
+  /* Narrowest phones: nudge the pair a little smaller, but keep tap comfort
+     (32px) and readable 12.5px text so it never looks pinched. */
   .landing__nav-login {
-    height: 22px;
-    padding: 0 6px;
-    font-size: 11px;
-    border-radius: 7px;
+    height: 32px;
+    padding: 0 12px;
+    font-size: 12.5px;
+    border-radius: 8px;
   }
 
   .landing__nav-join {
-    height: 22px;
-    padding: 0 7px;
-    font-size: 11px;
-    border-radius: 7px;
+    height: 32px;
+    padding: 0 14px;
+    font-size: 12.5px;
+    border-radius: 8px;
   }
 }
