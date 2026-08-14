@@ -33,10 +33,10 @@ Implementation note (langgraph-checkpoint-postgres):
 from __future__ import annotations
 
 import logging
-from contextlib import AbstractAsyncContextManager
 from typing import Optional
 
 from langgraph.checkpoint.postgres.aio import AsyncPostgresSaver
+from psycopg_pool import AsyncConnectionPool
 
 from src.utils.settings import settings
 
@@ -46,9 +46,9 @@ log = logging.getLogger(__name__)
 # Module-level singleton — initialised by init_checkpointer() in the FastAPI
 # lifespan, before the first request arrives.
 _checkpointer: Optional[AsyncPostgresSaver] = None
-# The async context manager returned by from_conn_string; we hold its reference
-# so we can __aexit__ it cleanly on shutdown (releasing the pool).
-_checkpointer_cm: Optional[AbstractAsyncContextManager[AsyncPostgresSaver]] = None
+# The connection pool backing the saver; held so we can close it cleanly on
+# shutdown (releasing every pooled connection).
+_pool: Optional[AsyncConnectionPool] = None
 
 
 def _build_connection_string() -> str:
@@ -61,27 +61,39 @@ def _build_connection_string() -> str:
 
 
 async def init_checkpointer() -> AsyncPostgresSaver:
-    """Create the AsyncPostgresSaver (pooled) and run setup() once.
+    """Create the AsyncPostgresSaver and run setup() once.
 
     Safe to call multiple times: subsequent calls return the cached instance so
     a hot-reload or test fixture double-call doesn't double-initialise.
 
-    The context manager is entered here and only exited in close_checkpointer(),
-    so the underlying connection pool stays open for the app's lifetime — which
-    is what makes concurrent requests work without "connection is closed".
+    CRITICAL: we back the saver with an AsyncConnectionPool, NOT a single
+    connection. The library's AsyncPostgresSaver._cursor() opens a *fresh*
+    connection from the pool on every operation (see get_connection). A single
+    long-lived connection shared across concurrent requests was the cause of the
+    intermittent `psycopg.OperationalError: the connection is closed` — one
+    request closing/committing the shared connection took down every other
+    in-flight request. The pool hands each concurrent request its own connection
+    and returns it afterwards, which is the correct model for FastAPI's
+    concurrent async handlers.
     """
-    global _checkpointer, _checkpointer_cm
+    global _checkpointer, _pool
 
     if _checkpointer is not None:
         return _checkpointer
 
     conn_string = _build_connection_string()
 
-    # Enter the async context manager: builds the saver on top of a connection
-    # pool (not a single connection). This pool is the key fix — concurrent
-    # requests each get their own pooled connection.
-    _checkpointer_cm = AsyncPostgresSaver.from_conn_string(conn_string)
-    saver = await _checkpointer_cm.__aenter__()
+    # One pool for the whole process. open=False so we control startup; we open
+    # it explicitly and run setup() against it. SSL is read from the connection
+    # string itself (e.g. `?sslmode=require`), so no extra ssl kwarg is needed.
+    _pool = AsyncConnectionPool(
+        conn_string,
+        open=False,
+        max_size=20,
+    )
+    await _pool.open()
+
+    saver = AsyncPostgresSaver(conn=_pool)
 
     # setup() creates the LangGraph tables (checkpoint, checkpoint_writes,
     # checkpoint_blobs, checkpoint_migrations). Idempotent — running twice
@@ -138,14 +150,14 @@ async def delete_thread(user_id: int, conversation_id: int) -> None:
 async def close_checkpointer() -> None:
     """Release the connection pool at app shutdown (best-effort).
 
-    Exits the async context manager opened in init_checkpointer(), which closes
-    the underlying psycopg pool cleanly so no connections leak on shutdown.
+    Closes the AsyncConnectionPool opened in init_checkpointer(), returning all
+    pooled connections to Postgres cleanly so no connections leak on shutdown.
     """
-    global _checkpointer, _checkpointer_cm
-    if _checkpointer_cm is not None:
+    global _checkpointer, _pool
+    if _pool is not None:
         try:
-            await _checkpointer_cm.__aexit__(None, None, None)
+            await _pool.close()
         except Exception as exc:
             log.warning("Error closing checkpointer pool: %s", exc)
     _checkpointer = None
-    _checkpointer_cm = None
+    _pool = None
